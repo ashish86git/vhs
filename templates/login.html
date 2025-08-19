@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: -1;
+      object-fit: cover;
+    }
+
+    /* Dark Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 0;
+    }
+
+    /* Welcome Heading */
+    .welcome-text {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: #fff;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 40px;
+      text-shadow: 0 0 15px rgba(0, 255, 200, 0.8);
+      animation: fadeInDown 1.5s ease;
+    }
+
+    /* Glass Effect Login Box */
+    .login-box {
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
+      margin: 6% auto;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      animation: fadeInUp 1.2s ease;
+    }
+
+    .login-box h3 {
+      background: linear-gradient(90deg, #00ffc8, #007bff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Button styling */
+    .btn-custom {
+      background: linear-gradient(90deg, #007bff, #00ffc8);
+      border: none;
+      color: white;
+      font-weight: bold;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-custom:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 255, 200, 0.6);
+    }
+
+    /* Animations */
+    @keyframes fadeInDown {
+      from {opacity: 0; transform: translateY(-30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeInUp {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Video -->
+  <video autoplay muted loop class="bg-video">
+    <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Dark Overlay -->
+  <div class="overlay"></div>
+
+  <!-- Welcome Heading -->
+  <h1 class="welcome-text">✨ Welcome to Drona Logitech VHS ✨</h1>
+
+  <!-- Login Box -->
+  <div class="container">
+    <div class="login-box">
+      <h3 class="mb-4">🔐 Login</h3>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="alert alert-danger">
+            {% for category, message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="mb-3">
+          <label for="userid" class="form-label text-white">User ID</label>
+          <input type="text" class="form-control" id="userid" name="userid" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label text-white">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-custom w-100">Login</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

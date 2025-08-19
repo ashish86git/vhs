@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vehicle Holding Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(90deg, #212529, #343a40);
+    }
+    .navbar-brand img {
+      height: 40px;
+    }
+    .navbar a.btn:hover {
+      transform: scale(1.05);
+    }
+    /* Cards */
+    .card {
+      border-radius: 15px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+    /* Form Section */
+    .form-section {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+    }
+    .form-section:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    /* Table */
+    .table {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table-hover tbody tr:hover {
+      background-color: #f1f5ff;
+    }
+    /* Footer */
+    footer {
+      background: #212529;
+      color: #ddd;
+      padding: 20px 0;
+      margin-top: 40px;
+    }
+    footer a {
+      color: #ddd;
+      margin: 0 10px;
+      font-size: 1.4rem;
+      transition: color 0.2s ease;
+    }
+    footer a:hover {
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+      <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Drona Logo" class="me-2 rounded-circle">
+      Vehicle Holding Dashboard
+    </a>
+    <div class="ms-auto d-flex">
+      <a href="{{ url_for('home') }}" class="btn btn-outline-light me-2">
+        <i class="bi bi-house-door"></i> Home
+      </a>
+      <a href="{{ url_for('logout') }}" class="btn btn-danger">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+
+  <!-- Summary Cards -->
+  <div class="row mb-4 text-center">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm p-3 bg-light">
+        <h5>Total Check-Ins</h5>
+        <p class="fs-3 fw-bold text-success">{{ total_in }}</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm p-3 bg-light">
+        <h5>Total Check-Outs</h5>
+        <p class="fs-3 fw-bold text-danger">{{ total_out }}</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm p-3 bg-light">
+        <h5>Total Vehicle Status</h5>
+        <p class="fs-3 fw-bold text-primary">{{ total_status }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Report -->
+  <div class="text-end mb-3">
+    <a href="{{ url_for('export') }}" class="btn btn-outline-primary shadow-sm">
+      ⬇️ Download Report
+    </a>
+  </div>
+
+  <!-- Graphs -->
+  <div class="row mb-4">
+    <div class="col-md-6 text-center mb-3">
+      {% if chart_in %}
+        <div class="card p-2 shadow-sm">
+          <h6 class="fw-semibold">📈 Check-In Trends</h6>
+          <img src="data:image/png;base64,{{ chart_in }}" class="img-fluid rounded"/>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-md-6 text-center mb-3">
+      {% if chart_out %}
+        <div class="card p-2 shadow-sm">
+          <h6 class="fw-semibold">📉 Check-Out Trends</h6>
+          <img src="data:image/png;base64,{{ chart_out }}" class="img-fluid rounded"/>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Vehicle Check-In Form -->
+  <div class="form-section">
+    <h3 class="mb-3 text-success"><i class="bi bi-plus-circle me-2"></i> New Check-In</h3>
+    <form method="POST" action="{{ url_for('checkin') }}" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" name="reg_no" class="form-control" placeholder="Vehicle Reg No" required>
+      </div>
+      <div class="col-md-4">
+        <select name="type" class="form-select" required>
+          <option value="">Select Type</option>
+          <option value="Car">Car</option>
+          <option value="Truck">Truck</option>
+          <option value="HCV">HCV</option>
+          <option value="LCV">LCV</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="transporter" class="form-control" placeholder="Transporter" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="supplier" class="form-control" placeholder="Supplier" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="lr_number" class="form-control" placeholder="LR Number" required>
+      </div>
+      <div class="col-md-4 d-grid">
+        <button type="submit" class="btn btn-success">Check-In</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Vehicle List -->
+  <h3 class="mb-3 fw-bold text-primary"><i class="bi bi-list-ul me-2"></i> Vehicle Logs</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Reg No</th>
+          <th>Type</th>
+          <th>Transporter</th>
+          <th>Supplier</th>
+          <th>LR Number</th>
+          <th>Status</th>
+          <th>Check-In</th>
+          <th>Check-Out</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vehicles %}
+        <tr>
+          <td>{{ v.id }}</td>
+          <td>{{ v.reg_no }}</td>
+          <td>{{ v.type }}</td>
+          <td>{{ v.transporter }}</td>
+          <td>{{ v.supplier }}</td>
+          <td>{{ v.lr_number }}</td>
+          <td>{{ v.status }}</td>
+          <td>{{ v.check_in }}</td>
+          <td>{{ v.check_out }}</td>
+          <td>
+            {% if v.status == 'IN' %}
+              <a href="{{ url_for('checkout', vid=v.id) }}" class="btn btn-sm btn-danger">Check-Out</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="text-center">
+  <div class="container">
+    <div class="mb-2">
+      <a href="https://facebook.com" target="_blank"><i class="bi bi-facebook"></i></a>
+      <a href="https://instagram.com" target="_blank"><i class="bi bi-instagram"></i></a>
+      <a href="https://linkedin.com" target="_blank"><i class="bi bi-linkedin"></i></a>
+    </div>
+    <p class="mb-0">© {{ current_year }} Vehicle Holding Dashboard | All Rights Reserved</p>
+  </div>
+</footer>
+
+</body>
+</html>
