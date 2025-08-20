@@ -155,13 +155,24 @@
         </select>
       </div>
       <div class="col-md-4">
-        <input type="text" name="transporter" class="form-control" placeholder="Transporter" required>
+        <select name="load_unload" class="form-select" required>
+          <option value="">Select Operation Type</option>
+          <option value="Load">Load</option>
+          <option value="Unload">Unload</option>
+          <option value="load_unload">Load/Unload</option>
+        </select>
       </div>
       <div class="col-md-4">
-        <input type="text" name="supplier" class="form-control" placeholder="Supplier" required>
+        <input type="text" name="transporter" class="form-control" placeholder="Transporter">
       </div>
       <div class="col-md-4">
-        <input type="text" name="lr_number" class="form-control" placeholder="LR Number" required>
+        <input type="text" name="supplier" class="form-control" placeholder="Supplier">
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="lr_number" class="form-control" placeholder="LR Number">
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="remarks" class="form-control" placeholder="Remarks">
       </div>
       <div class="col-md-4 d-grid">
         <button type="submit" class="btn btn-success">Check-In</button>
@@ -181,7 +192,9 @@
           <th>Transporter</th>
           <th>Supplier</th>
           <th>LR Number</th>
+          <th>Load/Unload</th>
           <th>Status</th>
+          <th>Remarks</th>
           <th>Check-In</th>
           <th>Check-Out</th>
           <th>Action</th>
@@ -196,7 +209,9 @@
           <td>{{ v.transporter }}</td>
           <td>{{ v.supplier }}</td>
           <td>{{ v.lr_number }}</td>
+          <td>{{ v.load_unload }}</td>
           <td>{{ v.status }}</td>
+          <td>{{ v.remarks }}</td>
           <td>{{ v.check_in }}</td>
           <td>{{ v.check_out }}</td>
           <td>
