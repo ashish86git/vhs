@@ -1,20 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from collections import defaultdict
 import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import base64
-from io import BytesIO
-import csv
 import io
+import csv
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
 
-# ✅ Database Config (SQLite example, PostgreSQL bhi use kar sakte ho)
+# ✅ Database Config (PostgreSQL)
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
         user='u7tqojjihbpn7s',
@@ -41,7 +39,7 @@ class Vehicle(db.Model):
     check_out = db.Column(db.String(50))
 
 
-# ✅ Hardcoded Users (No table needed for users)
+# ✅ Hardcoded Users
 USERS = {
     "admin": "admin123",
     "ashish": "test123"
@@ -68,13 +66,14 @@ def get_summary():
 
 
 def generate_charts(daily_in, daily_out):
-    days = list(daily_in.keys())
-    in_counts = list(daily_in.values())
-    out_counts = list(daily_out.values())
+    # Ensure both dicts cover the same set of days
+    all_days = sorted(set(daily_in.keys()) | set(daily_out.keys()))
+    in_counts = [daily_in.get(d, 0) for d in all_days]
+    out_counts = [daily_out.get(d, 0) for d in all_days]
 
     # ---- IN VEHICLES CHART ----
-    fig1, ax1 = plt.subplots(figsize=(5,3))
-    ax1.plot(days, in_counts, marker='o', linestyle='-', color='green', linewidth=2)
+    fig1, ax1 = plt.subplots(figsize=(5, 3))
+    ax1.plot(all_days, in_counts, marker='o', linestyle='-', color='green', linewidth=2)
     ax1.set_title("Daily Check-Ins")
     ax1.set_xlabel("Date")
     ax1.set_ylabel("Count")
@@ -88,8 +87,8 @@ def generate_charts(daily_in, daily_out):
     plt.close(fig1)
 
     # ---- OUT VEHICLES CHART ----
-    fig2, ax2 = plt.subplots(figsize=(5,3))
-    ax2.plot(days, out_counts, marker='o', linestyle='-', color='red', linewidth=2)
+    fig2, ax2 = plt.subplots(figsize=(5, 3))
+    ax2.plot(all_days, out_counts, marker='o', linestyle='-', color='red', linewidth=2)
     ax2.set_title("Daily Check-Outs")
     ax2.set_xlabel("Date")
     ax2.set_ylabel("Count")
@@ -103,6 +102,7 @@ def generate_charts(daily_in, daily_out):
     plt.close(fig2)
 
     return chart_in, chart_out
+
 
 
 # ---------- Routes ----------
@@ -150,7 +150,18 @@ def index():
     if search_query:
         filtered = [v for v in filtered if search_query in v.reg_no]
 
-    chart_in, chart_out = generate_chart(filtered) if filtered else (None, None)
+    # ✅ Fix: Correct function name
+    daily_in = {}
+    daily_out = {}
+    for v in filtered:
+        date_str = v.check_in.split(" ")[0] if v.check_in else None
+        if date_str:
+            if v.status == "IN":
+                daily_in[date_str] = daily_in.get(date_str, 0) + 1
+            elif v.status == "OUT":
+                daily_out[date_str] = daily_out.get(date_str, 0) + 1
+
+    chart_in, chart_out = generate_charts(daily_in, daily_out) if filtered else (None, None)
     total_in, total_out, total_status = get_summary()
 
     return render_template(
@@ -228,5 +239,5 @@ def export():
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  # 🚨 Vehicle table ban jayegi (User table nahi banega)
+        db.create_all()
     app.run(debug=True)
