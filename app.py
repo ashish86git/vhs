@@ -2,13 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, make_respo
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import matplotlib
-
+import pytz
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import base64
 import io
 import csv
-
+IST = pytz.timezone("Asia/Kolkata")
 app = Flask(__name__)
 app.secret_key = "supersecret"
 
@@ -193,7 +193,7 @@ def checkin():
     load_unload = request.form.get('load_unload', '')  # ✅ new
     remarks = request.form.get('remarks', '')  # ✅ new
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")  # ✅ IST time
     vehicle = Vehicle(
         reg_no=reg_no,
         type=vtype,
@@ -216,7 +216,7 @@ def checkout(vid):
     if "user" not in session:
         return redirect(url_for('login'))
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")  # ✅ IST time
     vehicle = Vehicle.query.get(vid)
     if vehicle and vehicle.status == "IN":
         vehicle.status = "OUT"
