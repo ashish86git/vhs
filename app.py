@@ -34,6 +34,11 @@ class Vehicle(db.Model):
     transporter = db.Column(db.String(100))
     supplier = db.Column(db.String(100))
     lr_number = db.Column(db.String(100))
+
+    # ✅ Newly Added Columns
+    load_unload = db.Column(db.String(50))  # e.g., Load / Unload
+    remarks = db.Column(db.String(255))  # Free text remarks
+
     status = db.Column(db.String(10), default="IN")
     check_in = db.Column(db.String(50))
     check_out = db.Column(db.String(50))
@@ -42,7 +47,7 @@ class Vehicle(db.Model):
 # ✅ Hardcoded Users
 USERS = {
     "admin": "admin123",
-    "ashish": "test123"
+    "super": "test123"
 }
 
 
@@ -52,9 +57,10 @@ def filter_by_date_range(data, start_date, end_date):
         return data
     filtered = []
     for v in data:
-        check_in = datetime.strptime(v.check_in, "%Y-%m-%d %H:%M:%S")
-        if start_date <= check_in.date() <= end_date:
-            filtered.append(v)
+        if v.check_in:  # check_in should not be None
+            check_in = datetime.strptime(v.check_in, "%Y-%m-%d %H:%M:%S")
+            if start_date <= check_in.date() <= end_date:
+                filtered.append(v)
     return filtered
 
 
@@ -66,7 +72,6 @@ def get_summary():
 
 
 def generate_charts(daily_in, daily_out):
-    # Ensure both dicts cover the same set of days
     all_days = sorted(set(daily_in.keys()) | set(daily_out.keys()))
     in_counts = [daily_in.get(d, 0) for d in all_days]
     out_counts = [daily_out.get(d, 0) for d in all_days]
@@ -102,7 +107,6 @@ def generate_charts(daily_in, daily_out):
     plt.close(fig2)
 
     return chart_in, chart_out
-
 
 
 # ---------- Routes ----------
@@ -150,9 +154,7 @@ def index():
     if search_query:
         filtered = [v for v in filtered if search_query in v.reg_no]
 
-    # ✅ Fix: Correct function name
-    daily_in = {}
-    daily_out = {}
+    daily_in, daily_out = {}, {}
     for v in filtered:
         date_str = v.check_in.split(" ")[0] if v.check_in else None
         if date_str:
@@ -188,6 +190,8 @@ def checkin():
     transporter = request.form['transporter']
     supplier = request.form['supplier']
     lr_number = request.form['lr_number']
+    load_unload = request.form.get('load_unload', '')  # ✅ new
+    remarks = request.form.get('remarks', '')  # ✅ new
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     vehicle = Vehicle(
@@ -196,6 +200,8 @@ def checkin():
         transporter=transporter,
         supplier=supplier,
         lr_number=lr_number,
+        load_unload=load_unload,
+        remarks=remarks,
         status="IN",
         check_in=now,
         check_out=""
@@ -226,11 +232,17 @@ def export():
 
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(["Entry ID", "Reg. Number", "Type", "Transporter", "Supplier", "LR Number",
-                 "Status", "Check-In Time", "Check-Out Time"])
+    cw.writerow([
+        "Entry ID", "Reg. Number", "Type", "Transporter", "Supplier",
+        "LR Number", "Load/Unload", "Status", "Remarks", "Check-In Time", "Check-Out Time"
+    ])
+
     for v in Vehicle.query.all():
-        cw.writerow([v.id, v.reg_no, v.type, v.transporter, v.supplier,
-                     v.lr_number, v.status, v.check_in, v.check_out])
+        cw.writerow([
+            v.id, v.reg_no, v.type, v.transporter, v.supplier,
+            v.lr_number, v.load_unload, v.status, v.remarks, v.check_in, v.check_out
+        ])
+
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=vehicle_log.csv"
     output.headers["Content-type"] = "text/csv"
