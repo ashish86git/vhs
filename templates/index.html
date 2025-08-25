@@ -10,61 +10,27 @@
       background-color: #f4f6f9;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    /* Navbar */
     .navbar {
       background: linear-gradient(90deg, #212529, #343a40);
     }
-    .navbar-brand img {
-      height: 40px;
-    }
-    .navbar a.btn:hover {
-      transform: scale(1.05);
-    }
-    /* Cards */
-    .card {
-      border-radius: 15px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    }
-    /* Form Section */
+    .navbar-brand img { height: 40px; }
+    .navbar a.btn:hover { transform: scale(1.05); }
+    .card { border-radius: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
     .form-section {
       background: #ffffff;
       border-radius: 15px;
       padding: 25px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.1);
       margin-bottom: 30px;
-      transition: all 0.3s ease;
     }
-    .form-section:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-    /* Table */
-    .table {
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .table-hover tbody tr:hover {
-      background-color: #f1f5ff;
-    }
-    /* Footer */
+    .table { border-radius: 10px; overflow: hidden; }
+    .table-hover tbody tr:hover { background-color: #f1f5ff; }
     footer {
-      background: #212529;
-      color: #ddd;
-      padding: 20px 0;
-      margin-top: 40px;
+      background: #212529; color: #ddd; padding: 20px 0; margin-top: 40px;
     }
-    footer a {
-      color: #ddd;
-      margin: 0 10px;
-      font-size: 1.4rem;
-      transition: color 0.2s ease;
-    }
-    footer a:hover {
-      color: #0d6efd;
-    }
+    footer a { color: #ddd; margin: 0 10px; font-size: 1.4rem; transition: color 0.2s; }
+    footer a:hover { color: #0d6efd; }
   </style>
 </head>
 <body>
@@ -159,7 +125,7 @@
           <option value="">Select Operation Type</option>
           <option value="Load">Load</option>
           <option value="Unload">Unload</option>
-          <option value="load_unload">Load/Unload</option>
+          <option value="Load/Unload">Load/Unload</option>
         </select>
       </div>
       <div class="col-md-4">
@@ -171,6 +137,18 @@
       <div class="col-md-4">
         <input type="text" name="lr_number" class="form-control" placeholder="LR Number">
       </div>
+
+      <!-- ✅ Contact Number Field with Icon & Validation -->
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-telephone-fill text-success"></i></span>
+          <input type="text" name="contact_no" class="form-control"
+                 placeholder="Contact Number"
+                 pattern="[0-9]{10}" minlength="10" maxlength="10" inputmode="numeric" required>
+        </div>
+        <small class="text-muted">Enter 10-digit mobile number only</small>
+      </div>
+
       <div class="col-md-4">
         <input type="text" name="remarks" class="form-control" placeholder="Remarks">
       </div>
@@ -180,10 +158,35 @@
     </form>
   </div>
 
+  <!-- Filters -->
+  <div class="card p-3 shadow-sm mb-3">
+    <h5 class="mb-2 text-primary"><i class="bi bi-funnel me-2"></i> Filters</h5>
+    <div class="row g-2">
+      <div class="col-md-2"><input type="text" id="filterReg" class="form-control" placeholder="Reg No"></div>
+      <div class="col-md-2"><input type="text" id="filterTransporter" class="form-control" placeholder="Transporter"></div>
+      <div class="col-md-2"><input type="text" id="filterSupplier" class="form-control" placeholder="Supplier"></div>
+      <div class="col-md-2">
+        <select id="filterLoadUnload" class="form-select">
+          <option value="">Load/Unload</option>
+          <option>Load</option>
+          <option>Unload</option>
+          <option>Load/Unload</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="filterStatus" class="form-select">
+          <option value="">Status</option>
+          <option>IN</option>
+          <option>OUT</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
   <!-- Vehicle List -->
   <h3 class="mb-3 fw-bold text-primary"><i class="bi bi-list-ul me-2"></i> Vehicle Logs</h3>
   <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover shadow-sm">
+    <table id="vehicleTable" class="table table-bordered table-striped table-hover shadow-sm">
       <thead class="table-dark">
         <tr>
           <th>ID</th>
@@ -192,6 +195,7 @@
           <th>Transporter</th>
           <th>Supplier</th>
           <th>LR Number</th>
+          <th>Contact No</th>
           <th>Load/Unload</th>
           <th>Status</th>
           <th>Remarks</th>
@@ -209,6 +213,7 @@
           <td>{{ v.transporter }}</td>
           <td>{{ v.supplier }}</td>
           <td>{{ v.lr_number }}</td>
+          <td>{{ v.contact_no }}</td>
           <td>{{ v.load_unload }}</td>
           <td>{{ v.status }}</td>
           <td>{{ v.remarks }}</td>
@@ -238,6 +243,32 @@
     <p class="mb-0">© {{ current_year }} Vehicle Holding Dashboard | All Rights Reserved</p>
   </div>
 </footer>
+
+<!-- JS for Smart Filtering -->
+<script>
+  function filterTable() {
+    const reg = document.getElementById("filterReg").value.toLowerCase();
+    const transporter = document.getElementById("filterTransporter").value.toLowerCase();
+    const supplier = document.getElementById("filterSupplier").value.toLowerCase();
+    const loadUnload = document.getElementById("filterLoadUnload").value.toLowerCase();
+    const status = document.getElementById("filterStatus").value.toLowerCase();
+
+    document.querySelectorAll("#vehicleTable tbody tr").forEach(row => {
+      const cells = row.getElementsByTagName("td");
+      const matches =
+        (cells[1].innerText.toLowerCase().includes(reg)) &&
+        (cells[3].innerText.toLowerCase().includes(transporter)) &&
+        (cells[4].innerText.toLowerCase().includes(supplier)) &&
+        (loadUnload === "" || cells[7].innerText.toLowerCase() === loadUnload) &&
+        (status === "" || cells[8].innerText.toLowerCase() === status);
+
+      row.style.display = matches ? "" : "none";
+    });
+  }
+
+  document.querySelectorAll("#filterReg, #filterTransporter, #filterSupplier, #filterLoadUnload, #filterStatus")
+    .forEach(input => input.addEventListener("input", filterTable));
+</script>
 
 </body>
 </html>
