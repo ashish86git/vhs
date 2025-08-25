@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import base64
 import io
 import csv
+
 IST = pytz.timezone("Asia/Kolkata")
 app = Flask(__name__)
 app.secret_key = "supersecret"
@@ -34,10 +35,10 @@ class Vehicle(db.Model):
     transporter = db.Column(db.String(100))
     supplier = db.Column(db.String(100))
     lr_number = db.Column(db.String(100))
+    contact_no = db.Column(db.String(15))   # ✅ NEW COLUMN
 
-    # ✅ Newly Added Columns
-    load_unload = db.Column(db.String(50))  # e.g., Load / Unload
-    remarks = db.Column(db.String(255))  # Free text remarks
+    load_unload = db.Column(db.String(50))  # Load / Unload
+    remarks = db.Column(db.String(255))     # Remarks
 
     status = db.Column(db.String(10), default="IN")
     check_in = db.Column(db.String(50))
@@ -57,7 +58,7 @@ def filter_by_date_range(data, start_date, end_date):
         return data
     filtered = []
     for v in data:
-        if v.check_in:  # check_in should not be None
+        if v.check_in:
             check_in = datetime.strptime(v.check_in, "%Y-%m-%d %H:%M:%S")
             if start_date <= check_in.date() <= end_date:
                 filtered.append(v)
@@ -148,7 +149,8 @@ def index():
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
 
-    vehicles = Vehicle.query.all()
+    # ✅ Order by ID
+    vehicles = Vehicle.query.order_by(Vehicle.id.asc()).all()
     filtered = filter_by_date_range(vehicles, start_date, end_date)
 
     if search_query:
@@ -190,16 +192,18 @@ def checkin():
     transporter = request.form['transporter']
     supplier = request.form['supplier']
     lr_number = request.form['lr_number']
-    load_unload = request.form.get('load_unload', '')  # ✅ new
-    remarks = request.form.get('remarks', '')  # ✅ new
+    contact_no = request.form['contact_no']  # ✅ new
+    load_unload = request.form.get('load_unload', '')
+    remarks = request.form.get('remarks', '')
 
-    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")  # ✅ IST time
+    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
     vehicle = Vehicle(
         reg_no=reg_no,
         type=vtype,
         transporter=transporter,
         supplier=supplier,
         lr_number=lr_number,
+        contact_no=contact_no,   # ✅ save contact
         load_unload=load_unload,
         remarks=remarks,
         status="IN",
@@ -216,7 +220,7 @@ def checkout(vid):
     if "user" not in session:
         return redirect(url_for('login'))
 
-    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")  # ✅ IST time
+    now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
     vehicle = Vehicle.query.get(vid)
     if vehicle and vehicle.status == "IN":
         vehicle.status = "OUT"
@@ -234,13 +238,15 @@ def export():
     cw = csv.writer(si)
     cw.writerow([
         "Entry ID", "Reg. Number", "Type", "Transporter", "Supplier",
-        "LR Number", "Load/Unload", "Status", "Remarks", "Check-In Time", "Check-Out Time"
+        "LR Number", "Contact No", "Load/Unload", "Status", "Remarks",
+        "Check-In Time", "Check-Out Time"
     ])
 
-    for v in Vehicle.query.all():
+    for v in Vehicle.query.order_by(Vehicle.id.asc()).all():
         cw.writerow([
             v.id, v.reg_no, v.type, v.transporter, v.supplier,
-            v.lr_number, v.load_unload, v.status, v.remarks, v.check_in, v.check_out
+            v.lr_number, v.contact_no, v.load_unload, v.status,
+            v.remarks, v.check_in, v.check_out
         ])
 
     output = make_response(si.getvalue())
