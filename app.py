@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import plotly.graph_objects as go
 import matplotlib
 import pytz
 matplotlib.use('Agg')
@@ -78,36 +79,47 @@ def generate_charts(daily_in, daily_out):
     out_counts = [daily_out.get(d, 0) for d in all_days]
 
     # ---- IN VEHICLES CHART ----
-    fig1, ax1 = plt.subplots(figsize=(5, 3))
-    ax1.plot(all_days, in_counts, marker='o', linestyle='-', color='green', linewidth=2)
-    ax1.set_title("Daily Check-Ins")
-    ax1.set_xlabel("Date")
-    ax1.set_ylabel("Count")
-    ax1.grid(True, linestyle="--", alpha=0.6)
+    fig_in = go.Figure()
+    fig_in.add_trace(go.Scatter(
+        x=all_days,
+        y=in_counts,
+        mode='lines+markers',
+        marker=dict(color='green', size=8),
+        line=dict(width=2),
+        hovertemplate="Date: %{x}<br>Check-Ins: %{y}<extra></extra>"
+    ))
+    fig_in.update_layout(
+        title="Daily Check-Ins",
+        xaxis_title="Date",
+        yaxis_title="Count",
+        template="plotly_white",
+        margin=dict(l=40, r=40, t=40, b=80)
+    )
 
-    buf1 = io.BytesIO()
-    plt.tight_layout()
-    fig1.savefig(buf1, format="png")
-    buf1.seek(0)
-    chart_in = base64.b64encode(buf1.getvalue()).decode("utf-8")
-    plt.close(fig1)
+    chart_in = fig_in.to_html(full_html=False)
 
     # ---- OUT VEHICLES CHART ----
-    fig2, ax2 = plt.subplots(figsize=(5, 3))
-    ax2.plot(all_days, out_counts, marker='o', linestyle='-', color='red', linewidth=2)
-    ax2.set_title("Daily Check-Outs")
-    ax2.set_xlabel("Date")
-    ax2.set_ylabel("Count")
-    ax2.grid(True, linestyle="--", alpha=0.6)
+    fig_out = go.Figure()
+    fig_out.add_trace(go.Scatter(
+        x=all_days,
+        y=out_counts,
+        mode='lines+markers',
+        marker=dict(color='red', size=8),
+        line=dict(width=2),
+        hovertemplate="Date: %{x}<br>Check-Outs: %{y}<extra></extra>"
+    ))
+    fig_out.update_layout(
+        title="Daily Check-Outs",
+        xaxis_title="Date",
+        yaxis_title="Count",
+        template="plotly_white",
+        margin=dict(l=40, r=40, t=40, b=80)
+    )
 
-    buf2 = io.BytesIO()
-    plt.tight_layout()
-    fig2.savefig(buf2, format="png")
-    buf2.seek(0)
-    chart_out = base64.b64encode(buf2.getvalue()).decode("utf-8")
-    plt.close(fig2)
+    chart_out = fig_out.to_html(full_html=False)
 
     return chart_in, chart_out
+
 
 
 # ---------- Routes ----------
