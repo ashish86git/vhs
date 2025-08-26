@@ -90,7 +90,7 @@
       {% if chart_in %}
         <div class="card p-2 shadow-sm">
           <h6 class="fw-semibold">📈 Check-In Trends</h6>
-          <img src="data:image/png;base64,{{ chart_in }}" class="img-fluid rounded"/>
+          {{ chart_in|safe }}
         </div>
       {% endif %}
     </div>
@@ -98,11 +98,12 @@
       {% if chart_out %}
         <div class="card p-2 shadow-sm">
           <h6 class="fw-semibold">📉 Check-Out Trends</h6>
-          <img src="data:image/png;base64,{{ chart_out }}" class="img-fluid rounded"/>
+          {{ chart_out|safe }}
         </div>
       {% endif %}
     </div>
   </div>
+
 
   <!-- Vehicle Check-In Form -->
   <div class="form-section">
