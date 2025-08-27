@@ -46,10 +46,11 @@ class Vehicle(db.Model):
     check_out = db.Column(db.String(50))
 
 
-# ✅ Hardcoded Users
+# ✅ Hardcoded Users with Roles
 USERS = {
-    "admin": "admin123",
-    "super": "test123"
+    "admin": {"password": "admin123", "role": "admin"},
+    "super": {"password": "test123", "role": "supervisor"},
+    "viewer": {"password": "view123", "role": "viewer"}   # ✅ New Read-only user
 }
 
 
@@ -135,8 +136,9 @@ def login():
     if request.method == "POST":
         userid = request.form['userid']
         password = request.form['password']
-        if userid in USERS and USERS[userid] == password:
+        if userid in USERS and USERS[userid]["password"] == password:
             session['user'] = userid
+            session['role'] = USERS[userid]["role"]
             return redirect(url_for('index'))
         else:
             flash("Invalid credentials!", "danger")
@@ -146,6 +148,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('role', None)
     return redirect(url_for('login'))
 
 
@@ -161,8 +164,10 @@ def index():
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
 
-    # ✅ Order by ID
-    vehicles = Vehicle.query.order_by(Vehicle.id.asc()).all()
+    # ✅ Latest first (last input upar) — ID DESC
+    vehicles = Vehicle.query.order_by(Vehicle.id.desc()).all()
+
+    # Existing logic retained (date filter + search)
     filtered = filter_by_date_range(vehicles, start_date, end_date)
 
     if search_query:
@@ -190,14 +195,20 @@ def index():
         chart_out=chart_out,
         start_date=start_date_str,
         end_date=end_date_str,
-        user=session['user']
+        user=session['user'],
+        role=session['role'],
+        current_year=datetime.now(IST).year  # ✅ footer ke liye
     )
 
 
+# ---------- Restricted Routes for Admin Only ----------
 @app.route('/checkin', methods=['POST'])
 def checkin():
     if "user" not in session:
         return redirect(url_for('login'))
+    if session.get("role") != "admin":   # ✅ Restrict to admin
+        flash("Unauthorized! Read-only access.", "warning")
+        return redirect(url_for('index'))
 
     reg_no = request.form['reg_no']
     vtype = request.form['type']
@@ -231,6 +242,9 @@ def checkin():
 def checkout(vid):
     if "user" not in session:
         return redirect(url_for('login'))
+    if session.get("role") != "admin":   # ✅ Restrict to admin
+        flash("Unauthorized! Read-only access.", "warning")
+        return redirect(url_for('index'))
 
     now = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
     vehicle = Vehicle.query.get(vid)
@@ -245,6 +259,9 @@ def checkout(vid):
 def export():
     if "user" not in session:
         return redirect(url_for('login'))
+    if session.get("role") != "admin":   # ✅ Restrict to admin
+        flash("Unauthorized! Read-only access.", "warning")
+        return redirect(url_for('index'))
 
     si = io.StringIO()
     cw = csv.writer(si)
@@ -254,6 +271,7 @@ def export():
         "Check-In Time", "Check-Out Time"
     ])
 
+    # Export order aapke original code jaise hi (ASC) रखा है
     for v in Vehicle.query.order_by(Vehicle.id.asc()).all():
         cw.writerow([
             v.id, v.reg_no, v.type, v.transporter, v.supplier,
