@@ -35,7 +35,6 @@
       <a href="http://www.dronalogitech.com/" class="btn btn-outline-light me-2" target="_blank">
           Home
       </a>
-
       <a href="{{ url_for('logout') }}" class="btn btn-danger">
         <i class="bi bi-box-arrow-right"></i> Logout
       </a>
@@ -69,9 +68,11 @@
 
   <!-- Download Report -->
   <div class="text-end mb-3">
-    <a href="{{ url_for('export') }}" class="btn btn-outline-primary shadow-sm">
-      ⬇️ Download Report
-    </a>
+    {% if role != 'lifelong' %}
+      <a href="{{ url_for('export') }}" class="btn btn-outline-primary shadow-sm">⬇️ Download Report</a>
+    {% else %}
+      <button class="btn btn-outline-primary shadow-sm disabled-btn">⬇️ Download Report</button>
+    {% endif %}
   </div>
 
   <!-- Graphs -->
@@ -94,8 +95,8 @@
     </div>
   </div>
 
-  <!-- ✅ Vehicle Check-In Form (Viewer role me hide) -->
-  {% if role != 'viewer' %}
+  <!-- ✅ Vehicle Check-In Form (hide for lifelong role) -->
+  {% if role != 'lifelong' %}
   <div class="form-section">
     <h3 class="mb-3 text-success"><i class="bi bi-plus-circle me-2"></i> New Check-In</h3>
     <form method="POST" action="{{ url_for('checkin') }}" class="row g-3">
@@ -210,7 +211,7 @@
           <td>{{ v.check_out }}</td>
           <td>
             {% if v.status == 'IN' %}
-              {% if role == 'viewer' %}
+              {% if role == 'lifelong' %}
                 <button class="btn btn-sm btn-secondary disabled-btn">Check-Out</button>
               {% else %}
                 <a href="{{ url_for('checkout', vid=v.id) }}" class="btn btn-sm btn-danger">Check-Out</a>
