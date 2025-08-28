@@ -50,7 +50,7 @@ class Vehicle(db.Model):
 USERS = {
     "admin": {"password": "admin123", "role": "admin"},
     "super": {"password": "test123", "role": "supervisor"},
-    "lifelong": {"password": "lifelong123", "role": "lifelong"}   # ✅ New Read-only user
+    "lifelong": {"password": "lifelong123", "role": "lifelong"}  # ✅ Read-only user
 }
 
 
@@ -120,7 +120,6 @@ def generate_charts(daily_in, daily_out):
     chart_out = fig_out.to_html(full_html=False)
 
     return chart_in, chart_out
-
 
 
 # ---------- Routes ----------
@@ -206,7 +205,8 @@ def index():
 def checkin():
     if "user" not in session:
         return redirect(url_for('login'))
-    if session.get("role") != "admin":   # ✅ Restrict to admin
+    # ✅ Only admin can perform
+    if session.get("role") != "admin":
         flash("Unauthorized! Read-only access.", "warning")
         return redirect(url_for('index'))
 
@@ -242,7 +242,8 @@ def checkin():
 def checkout(vid):
     if "user" not in session:
         return redirect(url_for('login'))
-    if session.get("role") != "admin":   # ✅ Restrict to admin
+    # ✅ Only admin can perform
+    if session.get("role") != "admin":
         flash("Unauthorized! Read-only access.", "warning")
         return redirect(url_for('index'))
 
@@ -259,7 +260,8 @@ def checkout(vid):
 def export():
     if "user" not in session:
         return redirect(url_for('login'))
-    if session.get("role") != "admin":   # ✅ Restrict to admin
+    # ✅ Only admin can perform
+    if session.get("role") != "admin":
         flash("Unauthorized! Read-only access.", "warning")
         return redirect(url_for('index'))
 
@@ -271,7 +273,6 @@ def export():
         "Check-In Time", "Check-Out Time"
     ])
 
-    # Export order aapke original code jaise hi (ASC) रखा है
     for v in Vehicle.query.order_by(Vehicle.id.asc()).all():
         cw.writerow([
             v.id, v.reg_no, v.type, v.transporter, v.supplier,
