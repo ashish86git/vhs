@@ -50,7 +50,7 @@ class Vehicle(db.Model):
 USERS = {
     "admin": {"password": "admin123", "role": "admin"},
     "super": {"password": "test123", "role": "supervisor"},
-    "viewer": {"password": "view123", "role": "viewer"}   # ✅ New Read-only user
+    "lifelong": {"password": "lifelong123", "role": "lifelong"}   # ✅ New Read-only user
 }
 
 
