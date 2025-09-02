@@ -7,18 +7,25 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .navbar { background: linear-gradient(90deg, #212529, #343a40); }
+    .navbar { background: linear-gradient(90deg, #FF0000, #b30000); }
     .navbar-brand img { height: 40px; }
     .navbar a.btn:hover { transform: scale(1.05); }
     .card { border-radius: 15px; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
     .form-section { background: #ffffff; border-radius: 15px; padding: 25px; box-shadow: 0 6px 18px rgba(0,0,0,0.1); margin-bottom: 30px; }
     .table { border-radius: 10px; overflow: hidden; }
-    .table-hover tbody tr:hover { background-color: #f1f5ff; }
-    footer { background: #212529; color: #ddd; padding: 20px 0; margin-top: 40px; }
-    footer a { color: #ddd; margin: 0 10px; font-size: 1.4rem; transition: color 0.2s; }
-    footer a:hover { color: #0d6efd; }
+    .table-hover tbody tr:hover { background-color: #ffe6e6; }
+    footer { background: #b30000; color: #fff; padding: 20px 0; margin-top: 40px; }
+    footer a { color: #fff; margin: 0 10px; font-size: 1.4rem; transition: color 0.2s; }
+    footer a:hover { color: #FF0000; }
     .disabled-btn { pointer-events: none; opacity: 0.6; }
+    /* 🔴 Red Theme Utilities */
+    .text-primary { color: #FF0000 !important; }
+    .btn-outline-primary { border-color: #FF0000; color: #FF0000; }
+    .btn-outline-primary:hover { background: #FF0000; color: #fff; }
+    .btn-primary { background: #FF0000; border-color: #FF0000; }
+    .btn-primary:hover { background: #b30000; border-color: #b30000; }
+    .table-dark { background: #FF0000 !important; }
   </style>
 </head>
 <body>
@@ -32,36 +39,38 @@
     </a>
     <div class="ms-auto d-flex">
       <span class="text-light me-3 fw-semibold">👤 Role: {{ role|capitalize }}</span>
-      <a href="http://www.dronalogitech.com/" class="btn btn-outline-light me-2" target="_blank">
-          Home
-      </a>
-      <a href="{{ url_for('logout') }}" class="btn btn-danger">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </a>
+      <a href="http://www.dronalogitech.com/" class="btn btn-outline-light me-2" target="_blank">Home</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </div>
   </div>
 </nav>
 
 <div class="container py-4">
 
-  <!-- Summary Cards -->
+ <!-- Summary Cards -->
   <div class="row mb-4 text-center">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
       <div class="card shadow-sm p-3 bg-light">
         <h5>Total Check-Ins</h5>
-        <p class="fs-3 fw-bold text-success">{{ total_in }}</p>
+        <p class="fs-3 fw-bold text-success" id="totalCheckIns">{{ total_in }}</p>
       </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
       <div class="card shadow-sm p-3 bg-light">
         <h5>Total Check-Outs</h5>
-        <p class="fs-3 fw-bold text-danger">{{ total_out }}</p>
+        <p class="fs-3 fw-bold text-danger" id="totalCheckOuts">{{ total_out }}</p>
       </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
       <div class="card shadow-sm p-3 bg-light">
         <h5>Total Vehicle Status</h5>
-        <p class="fs-3 fw-bold text-primary">{{ total_status }}</p>
+        <p class="fs-3 fw-bold text-primary" id="totalStatus">{{ total_status }}</p>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm p-3 bg-light">
+        <h5>> 48 Hrs Difference</h5>
+        <p class="fs-3 fw-bold text-warning" id="over48Hrs">{{ over_48hrs }}</p>
       </div>
     </div>
   </div>
@@ -95,82 +104,96 @@
     </div>
   </div>
 
-  <!-- ✅ Vehicle Check-In Form (hide for lifelong role) -->
+  <!-- ✅ Vehicle Check-In Form -->
   {% if role != 'lifelong' %}
   <div class="form-section">
     <h3 class="mb-3 text-success"><i class="bi bi-plus-circle me-2"></i> New Check-In</h3>
     <form method="POST" action="{{ url_for('checkin') }}" class="row g-3">
-      <div class="col-md-4">
-        <input type="text" name="reg_no" class="form-control" placeholder="Vehicle Reg No" required>
-      </div>
+      <div class="col-md-4"><input type="text" name="reg_no" class="form-control" placeholder="Vehicle Reg No" required></div>
       <div class="col-md-4">
         <select name="type" class="form-select" required>
-          <option value="">Select Type</option>
-          <option value="Car">Car</option>
-          <option value="Truck">Truck</option>
-          <option value="HCV">HCV</option>
-          <option value="LCV">LCV</option>
+          <option value="">Select Type</option><option value="Car">Car</option>
+          <option value="Truck">Truck</option><option value="HCV">HCV</option><option value="LCV">LCV</option>
         </select>
       </div>
       <div class="col-md-4">
         <select name="load_unload" class="form-select" required>
-          <option value="">Select Operation Type</option>
-          <option value="Load">Load</option>
-          <option value="Unload">Unload</option>
-          <option value="Load/Unload">Load/Unload</option>
+          <option value="">Select Operation Type</option><option value="Load">Load</option>
+          <option value="Unload">Unload</option><option value="Load/Unload">Load/Unload</option>
         </select>
       </div>
-      <div class="col-md-4">
-        <input type="text" name="transporter" class="form-control" placeholder="Transporter">
-      </div>
-      <div class="col-md-4">
-        <input type="text" name="supplier" class="form-control" placeholder="Supplier">
-      </div>
-      <div class="col-md-4">
-        <input type="text" name="lr_number" class="form-control" placeholder="LR Number">
-      </div>
+      <div class="col-md-4"><input type="text" name="transporter" class="form-control" placeholder="Transporter"></div>
+      <div class="col-md-4"><input type="text" name="supplier" class="form-control" placeholder="Supplier"></div>
+      <div class="col-md-4"><input type="text" name="lr_number" class="form-control" placeholder="LR Number"></div>
       <div class="col-md-4">
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-telephone-fill text-success"></i></span>
           <input type="text" name="contact_no" class="form-control"
-                 placeholder="Contact Number"
-                 pattern="[0-9]{10}" minlength="10" maxlength="10" inputmode="numeric" required>
+                 placeholder="Contact Number" pattern="[0-9]{10}" minlength="10" maxlength="10" inputmode="numeric" required>
         </div>
         <small class="text-muted">Enter 10-digit mobile number only</small>
       </div>
-      <div class="col-md-4">
-        <input type="text" name="remarks" class="form-control" placeholder="Remarks">
-      </div>
-      <div class="col-md-4 d-grid">
-        <button type="submit" class="btn btn-success">Check-In</button>
-      </div>
+      <div class="col-md-4"><input type="text" name="remarks" class="form-control" placeholder="Remarks"></div>
+      <div class="col-md-4 d-grid"><button type="submit" class="btn btn-success">Check-In</button></div>
     </form>
   </div>
   {% endif %}
 
-  <!-- Filters -->
-  <div class="card p-3 shadow-sm mb-3">
-    <h5 class="mb-2 text-primary"><i class="bi bi-funnel me-2"></i> Filters</h5>
-    <div class="row g-2">
-      <div class="col-md-2"><input type="text" id="filterReg" class="form-control" placeholder="Reg No"></div>
-      <div class="col-md-2"><input type="text" id="filterTransporter" class="form-control" placeholder="Transporter"></div>
-      <div class="col-md-2"><input type="text" id="filterSupplier" class="form-control" placeholder="Supplier"></div>
-      <div class="col-md-2">
-        <select id="filterLoadUnload" class="form-select">
-          <option value="">Load/Unload</option>
-          <option>Load</option>
-          <option>Unload</option>
-          <option>Load/Unload</option>
-        </select>
+  <!-- ✅ Chatbot Widget -->
+  <div id="chatbot-container" style="position:fixed; bottom:20px; right:20px; z-index:9999;">
+    <button id="chatbot-toggle"
+            class="btn shadow-lg d-flex align-items-center justify-content-center"
+            style="width:55px; height:55px; border-radius:50%; background:linear-gradient(135deg,#FF0000,#b30000); color:#fff; font-size:1.5rem;">
+      🤖
+    </button>
+    <div id="chatbot-box" class="card shadow-lg border-0"
+         style="display:none; width:330px; height:450px; border-radius:15px; overflow:hidden; position:absolute; bottom:70px; right:0;">
+      <div class="card-header text-white" style="background:linear-gradient(135deg,#FF0000,#b30000);">
+        <span>VHS Assistant Bot</span>
+        <button class="btn btn-sm btn-light float-end" onclick="toggleChatbot()">✖</button>
       </div>
-      <div class="col-md-2">
-        <select id="filterStatus" class="form-select">
-          <option value="">Status</option>
-          <option>IN</option>
-          <option>OUT</option>
-        </select>
+      <div class="card-body d-flex flex-column p-2" style="background:#f9f9f9;">
+        <div id="chatbot-messages" class="flex-grow-1 overflow-auto mb-2 p-2 bg-white rounded shadow-sm" style="font-size:0.9rem;"></div>
+        <div class="input-group">
+          <input type="text" id="chatbot-input" class="form-control" placeholder="Ask about vehicles...">
+          <button class="btn btn-primary" onclick="sendMessage()">➤</button>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card p-3 shadow-sm mb-3">
+    <form action="{{ url_for('index') }}" method="GET">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="text-primary mb-0"><i class="bi bi-funnel me-2"></i> Filters</h5>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="resetFilters()">
+          <i class="bi bi-x-circle me-1"></i> Reset Filters
+        </button>
+      </div>
+      <div class="row g-2">
+        <div class="col-md-2"><input type="text" name="reg" class="form-control" placeholder="Reg No" value="{{ request.args.get('reg', '') }}"></div>
+        <div class="col-md-2"><input type="text" name="transporter" class="form-control" placeholder="Transporter" value="{{ request.args.get('transporter', '') }}"></div>
+        <div class="col-md-2"><input type="text" name="supplier" class="form-control" placeholder="Supplier" value="{{ request.args.get('supplier', '') }}"></div>
+        <div class="col-md-2">
+          <select name="load_unload" class="form-select">
+            <option value="">Load/Unload</option>
+            <option value="Load" {% if request.args.get('load_unload', '') == 'Load' %}selected{% endif %}>Load</option>
+            <option value="Unload" {% if request.args.get('load_unload', '') == 'Unload' %}selected{% endif %}>Unload</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select name="status" class="form-select">
+            <option value="">Status</option>
+            <option value="IN" {% if request.args.get('status', '') == 'IN' %}selected{% endif %}>IN</option>
+            <option value="OUT" {% if request.args.get('status', '') == 'OUT' %}selected{% endif %}>OUT</option>
+          </select>
+        </div>
+        <div class="col-md-2"><input type="date" name="from_date" class="form-control" placeholder="From" value="{{ request.args.get('from_date', '') }}"></div>
+        <div class="col-md-2"><input type="date" name="to_date" class="form-control" placeholder="To" value="{{ request.args.get('to_date', '') }}"></div>
+        <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Apply Filters</button></div>
+      </div>
+    </form>
   </div>
 
   <!-- Vehicle List -->
@@ -179,36 +202,19 @@
     <table id="vehicleTable" class="table table-bordered table-striped table-hover shadow-sm">
       <thead class="table-dark">
         <tr>
-          <th>ID</th>
-          <th>Reg No</th>
-          <th>Type</th>
-          <th>Transporter</th>
-          <th>Supplier</th>
-          <th>LR Number</th>
-          <th>Contact No</th>
-          <th>Load/Unload</th>
-          <th>Status</th>
-          <th>Remarks</th>
-          <th>Check-In</th>
-          <th>Check-Out</th>
-          <th>Action</th>
+          <th>S.No.</th><th>ID</th><th>Reg No</th><th>Type</th><th>Transporter</th><th>Supplier</th>
+          <th>LR Number</th><th>Contact No</th><th>Load/Unload</th><th>Status</th>
+          <th>Remarks</th><th>Check-In</th><th>Check-Out</th><th>Action</th>
         </tr>
       </thead>
       <tbody>
         {% for v in vehicles %}
         <tr>
-          <td>{{ v.id }}</td>
-          <td>{{ v.reg_no }}</td>
-          <td>{{ v.type }}</td>
-          <td>{{ v.transporter }}</td>
-          <td>{{ v.supplier }}</td>
-          <td>{{ v.lr_number }}</td>
-          <td>{{ v.contact_no }}</td>
-          <td>{{ v.load_unload }}</td>
-          <td>{{ v.status }}</td>
-          <td>{{ v.remarks }}</td>
-          <td>{{ v.check_in }}</td>
-          <td>{{ v.check_out }}</td>
+          <td>{{ loop.index + (current_page - 1) * 20 }}</td>
+          <td>{{ v.id }}</td><td>{{ v.reg_no }}</td><td>{{ v.type }}</td>
+          <td>{{ v.transporter }}</td><td>{{ v.supplier }}</td><td>{{ v.lr_number }}</td>
+          <td>{{ v.contact_no }}</td><td>{{ v.load_unload }}</td><td>{{ v.status }}</td>
+          <td>{{ v.remarks }}</td><td>{{ v.check_in }}</td><td>{{ v.check_out }}</td>
           <td>
             {% if v.status == 'IN' %}
               {% if role == 'lifelong' %}
@@ -224,7 +230,24 @@
     </table>
   </div>
 
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-center mt-3">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('index', page=current_page-1, reg=request.args.get('reg',''), transporter=request.args.get('transporter',''), supplier=request.args.get('supplier',''), load_unload=request.args.get('load_unload',''), status=request.args.get('status',''), from_date=request.args.get('from_date',''), to_date=request.args.get('to_date','')) }}">&laquo; Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ current_page }} of {{ total_pages }}</span>
+        </li>
+        <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('index', page=current_page+1, reg=request.args.get('reg',''), transporter=request.args.get('transporter',''), supplier=request.args.get('supplier',''), load_unload=request.args.get('load_unload',''), status=request.args.get('status',''), from_date=request.args.get('from_date',''), to_date=request.args.get('to_date','')) }}">Next &raquo;</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
+
 
 <!-- Footer -->
 <footer class="text-center">
@@ -238,29 +261,41 @@
   </div>
 </footer>
 
-<!-- JS for Smart Filtering -->
 <script>
-  function filterTable() {
-    const reg = document.getElementById("filterReg").value.toLowerCase();
-    const transporter = document.getElementById("filterTransporter").value.toLowerCase();
-    const supplier = document.getElementById("filterSupplier").value.toLowerCase();
-    const loadUnload = document.getElementById("filterLoadUnload").value.toLowerCase();
-    const status = document.getElementById("filterStatus").value.toLowerCase();
+  function resetFilters() {
+    window.location.href = "{{ url_for('index') }}";
+  }
 
-    document.querySelectorAll("#vehicleTable tbody tr").forEach(row => {
-      const cells = row.getElementsByTagName("td");
-      const matches =
-        (cells[1].innerText.toLowerCase().includes(reg)) &&
-        (cells[3].innerText.toLowerCase().includes(transporter)) &&
-        (cells[4].innerText.toLowerCase().includes(supplier)) &&
-        (loadUnload === "" || cells[7].innerText.toLowerCase() === loadUnload) &&
-        (status === "" || cells[8].innerText.toLowerCase() === status);
+  function toggleChatbot() {
+    const box = document.getElementById("chatbot-box");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  }
 
-      row.style.display = matches ? "" : "none";
+  document.getElementById("chatbot-toggle").addEventListener("click", toggleChatbot);
+
+  function sendMessage() {
+    const input = document.getElementById("chatbot-input");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const messages = document.getElementById("chatbot-messages");
+    messages.innerHTML += `<div><b>You:</b> ${msg}</div>`;
+    input.value = "";
+
+    fetch("/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: msg })
+    })
+    .then(res => res.json())
+    .then(data => {
+      messages.innerHTML += `<div class="text-primary"><b>Bot:</b> ${data.answer}</div>`;
+      messages.scrollTop = messages.scrollHeight;
+    })
+  .catch(err => {
+      messages.innerHTML += `<div class="text-danger"><b>Bot:</b> Error fetching response</div>`;
     });
   }
-  document.querySelectorAll("#filterReg, #filterTransporter, #filterSupplier, #filterLoadUnload, #filterStatus")
-    .forEach(input => input.addEventListener("input", filterTable));
 </script>
 
 </body>
