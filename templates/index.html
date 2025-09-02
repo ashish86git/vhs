@@ -26,6 +26,13 @@
     .btn-primary { background: #FF0000; border-color: #FF0000; }
     .btn-primary:hover { background: #b30000; border-color: #b30000; }
     .table-dark { background: #FF0000 !important; }
+    .card-value {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
   </style>
 </head>
 <body>
@@ -51,8 +58,8 @@
 
 <div class="container py-4">
 
- <!-- Summary Cards -->
-  <div class="row mb-4 text-center">
+  <!-- Summary Cards -->
+  <div class="row mb-4 text-center justify-content-center">
     <div class="col-md-3 mb-3">
       <div class="card shadow-sm p-3 bg-light">
         <h5>Total Check-Ins</h5>
@@ -71,13 +78,9 @@
         <p class="fs-3 fw-bold text-primary" id="totalStatus">{{ total_status }}</p>
       </div>
     </div>
-<!--    <div class="col-md-3 mb-3">-->
-<!--      <div class="card shadow-sm p-3 bg-light">-->
-<!--        <h5>> 48 Hrs Difference</h5>-->
-<!--        <p class="fs-3 fw-bold text-warning" id="over48Hrs">{{ over_48hrs }}</p>-->
-<!--      </div>-->
-<!--    </div>-->
   </div>
+
+
 
   <!-- Download Report -->
   <div class="text-end mb-3">
