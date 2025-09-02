@@ -33,10 +33,14 @@
 <!-- Header Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
-      <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Drona Logo" class="me-2 rounded-circle">
-      Vehicle Holding Dashboard
-    </a>
+      <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}"
+             alt="Drona Logo"
+             class="me-2 rounded-circle border"
+             style="width: 65px; height: 65px; object-fit: contain; background-color: white; padding: 2px;">
+        Vehicle Holding Dashboard
+      </a>
+
     <div class="ms-auto d-flex">
       <span class="text-light me-3 fw-semibold">👤 Role: {{ role|capitalize }}</span>
       <a href="http://www.dronalogitech.com/" class="btn btn-outline-light me-2" target="_blank">Home</a>
@@ -67,12 +71,12 @@
         <p class="fs-3 fw-bold text-primary" id="totalStatus">{{ total_status }}</p>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm p-3 bg-light">
-        <h5>> 48 Hrs Difference</h5>
-        <p class="fs-3 fw-bold text-warning" id="over48Hrs">{{ over_48hrs }}</p>
-      </div>
-    </div>
+<!--    <div class="col-md-3 mb-3">-->
+<!--      <div class="card shadow-sm p-3 bg-light">-->
+<!--        <h5>> 48 Hrs Difference</h5>-->
+<!--        <p class="fs-3 fw-bold text-warning" id="over48Hrs">{{ over_48hrs }}</p>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 
   <!-- Download Report -->
