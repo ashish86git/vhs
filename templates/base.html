@@ -2,9 +2,642 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}Warehouse Vehicle Management{% endblock %}
+    </title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --topbar-height: 70px;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --dark: #0f172a;
+            --dark-2: #111827;
+            --body-bg: #f4f7fb;
+            --card-radius: 18px;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+            background: var(--body-bg);
+            color: #172033;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================== */
+
+        .app-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background:
+                linear-gradient(
+                    180deg,
+                    #0f172a 0%,
+                    #111827 55%,
+                    #172554 100%
+                );
+            color: white;
+            z-index: 1050;
+            overflow-y: auto;
+            transition: transform .3s ease;
+        }
+
+        .brand-area {
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 22px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .brand-text {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .sidebar-section {
+            padding: 20px 14px 5px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            padding: 8px 12px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            padding: 11px 13px;
+            border-radius: 11px;
+            margin-bottom: 4px;
+            font-size: 14px;
+            transition: all .2s ease;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: white;
+            background: rgba(255,255,255,.10);
+        }
+
+        .sidebar-link.active {
+            box-shadow: inset 3px 0 0 #60a5fa;
+        }
+
+        .sidebar-user {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 15px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: capitalize;
+        }
+
+        /* =========================
+           MAIN
+        ========================== */
+
+        .app-main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: var(--topbar-height);
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            border: 0;
+            background: #f1f5f9;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .page-heading {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .page-subheading {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .role-badge {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .logout-btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .page-content {
+            padding: 28px;
+        }
+
+        /* =========================
+           FLASH
+        ========================== */
+
+        .flash-wrapper {
+            position: fixed;
+            top: 85px;
+            right: 25px;
+            width: min(420px, calc(100vw - 30px));
+            z-index: 2000;
+        }
+
+        .flash-wrapper .alert {
+            border: none;
+            border-radius: 13px;
+            box-shadow: 0 10px 30px rgba(15,23,42,.12);
+        }
+
+        /* =========================
+           BUTTONS
+        ========================== */
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn {
+            border-radius: 10px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.5);
+            z-index: 1040;
+        }
+
+        @media (max-width: 991px) {
+            .app-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .app-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .app-main {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .location-badge {
+                display: none;
+            }
+
+            .page-content {
+                padding: 15px;
+            }
+
+            .page-heading {
+                font-size: 17px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
+
 <body>
+
+{% if session.get("user") %}
+
+    <!-- SIDEBAR OVERLAY -->
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()">
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="app-sidebar" id="appSidebar">
+
+        <div class="brand-area">
+            <div class="brand-icon">
+                <i class="bi bi-truck"></i>
+            </div>
+
+            <div>
+                <div class="brand-text">
+                    Warehouse
+                </div>
+
+                <div class="brand-subtitle">
+                    Vehicle Management
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            Main Menu
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="sidebar-link active">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+
+            {% if role in ["security", "lifelong"] %}
+            <a
+                href="{{ url_for('index') }}#checkin"
+                class="sidebar-link">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Inbound Check-In</span>
+            </a>
+            {% endif %}
+
+            {% if role == "supervisor" %}
+            <a
+                href="{{ url_for('index') }}#outbound"
+                class="sidebar-link">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Outbound Entry</span>
+            </a>
+            {% endif %}
+
+            {% if role in ["admin", "supervisor"] %}
+            <a
+                href="{{ url_for('export') }}"
+                class="sidebar-link">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>Export CSV</span>
+            </a>
+            {% endif %}
+
+            {% if role == "admin" %}
+            <div class="sidebar-section">
+                Administration
+            </div>
+
+            <a
+                href="{{ url_for('admin_users') }}"
+                class="sidebar-link">
+                <i class="bi bi-people-fill"></i>
+                <span>User Management</span>
+            </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="d-flex align-items-center gap-2">
+
+                <div class="user-avatar">
+                    {{ session.get("user", "U")[0]|upper }}
+                </div>
+
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="user-name text-truncate">
+                        {{ session.get("user") }}
+                    </div>
+
+                    <div class="user-role">
+                        {{ session.get("role") }}
+                    </div>
+                </div>
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="text-danger"
+                    title="Logout">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </a>
+
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="app-main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    class="mobile-menu-btn"
+                    onclick="toggleSidebar()">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+
+                <div>
+                    {% block page_header %}
+                    <h1 class="page-heading">
+                        Dashboard
+                    </h1>
+
+                    <div class="page-subheading">
+                        Vehicle movement and warehouse operations
+                    </div>
+                    {% endblock %}
+                </div>
+
+            </div>
+
+            <div class="topbar-right">
+
+                {% if location %}
+                <div class="location-badge">
+                    <i class="bi bi-geo-alt me-1"></i>
+                    {{ location }}
+                </div>
+                {% endif %}
+
+                <div class="role-badge">
+                    <i class="bi bi-person-badge me-1"></i>
+                    {{ role }}
+                </div>
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-btn"
+                    title="Logout">
+                    <i class="bi bi-power"></i>
+                </a>
+
+            </div>
+
+        </header>
+
+        <!-- FLASH MESSAGES -->
+        <div class="flash-wrapper">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div
+                        class="alert alert-{{ category }} alert-dismissible fade show"
+                        role="alert">
+                        {{ message }}
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <section class="page-content">
+
+            {% block content %}
+            {% endblock %}
+
+        </section>
+
+    </main>
+
+{% else %}
+
+    {% block public_content %}
+    {% endblock %}
+
+{% endif %}
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById("appSidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (sidebar) {
+            sidebar.classList.toggle("show");
+        }
+
+        if (overlay) {
+            overlay.classList.toggle("show");
+        }
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById("appSidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (sidebar) {
+            sidebar.classList.remove("show");
+        }
+
+        if (overlay) {
+            overlay.classList.remove("show");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        setTimeout(function () {
+            document
+                .querySelectorAll(".flash-wrapper .alert")
+                .forEach(function (alert) {
+
+                    try {
+                        bootstrap.Alert.getOrCreateInstance(alert).close();
+                    } catch (e) {}
+                });
+        }, 5000);
+
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>
