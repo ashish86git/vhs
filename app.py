@@ -1041,99 +1041,192 @@ def unload(vid):
 # SUPERVISOR ONLY
 # ============================================================
 
+# ============================================================
+# OUTBOUND ENTRY
+# SUPERVISOR ONLY
+# ============================================================
+
 @app.route("/outbound", methods=["POST"])
 def outbound():
 
-    global NEXT_VEHICLE_ID
+    if not require_login():
+        return redirect(url_for("login"))
 
-    if session.get("role") != "supervisor":
-        flash("Unauthorized access.", "danger")
+    if not is_supervisor():
+        flash(
+            "Unauthorized! Only Supervisor can create Outbound Entry.",
+            "warning"
+        )
         return redirect(url_for("index"))
 
-    vehicle = Vehicle(
-        id=NEXT_VEHICLE_ID,
+    try:
 
-        reg_no=request.form.get("reg_no", "").strip(),
+        reg_no = request.form.get("reg_no", "").strip()
+        vtype = request.form.get("type", "").strip()
+        transporter = request.form.get("transporter", "").strip()
+        supplier = request.form.get("supplier", "").strip()
+        lr_number = request.form.get("lr_number", "").strip()
+        contact_no = request.form.get("contact_no", "").strip()
 
-        type=request.form.get("type", "").strip(),
-
-        transporter=request.form.get("transporter", "").strip(),
-
-        supplier=request.form.get("supplier", "").strip(),
-
-        lr_number=request.form.get("lr_number", "").strip(),
-
-        contact_no=request.form.get("contact_no", "").strip(),
-
-        load_unload=request.form.get(
+        load_unload = request.form.get(
             "load_unload",
             "Load"
-        ),
+        ).strip()
 
-        driver_name=request.form.get(
+        driver_name = request.form.get(
             "driver_name",
             ""
-        ).strip(),
+        ).strip()
 
-        driver_mobile=request.form.get(
+        driver_mobile = request.form.get(
             "driver_mobile",
             ""
-        ).strip(),
+        ).strip()
 
-        invoice_number=request.form.get(
+        invoice_number = request.form.get(
             "invoice_number",
             ""
-        ).strip(),
+        ).strip()
 
-        invoice_qty=request.form.get(
+        invoice_qty = request.form.get(
             "invoice_qty",
             ""
-        ).strip(),
+        ).strip()
 
-        number_of_boxes=request.form.get(
+        number_of_boxes = request.form.get(
             "number_of_boxes",
             ""
-        ).strip(),
+        ).strip()
 
-        dock_number=request.form.get(
+        dock_number = request.form.get(
             "dock_number",
             ""
-        ).strip(),
+        ).strip()
 
-        remarks=request.form.get(
+        remarks = request.form.get(
             "remarks",
             ""
-        ).strip(),
+        ).strip()
 
-        flow_type="OUTBOUND",
+        # ----------------------------------------------------
+        # VALIDATION
+        # ----------------------------------------------------
 
-        status="IN",
+        if not reg_no:
+            flash("Vehicle Reg No is required.", "danger")
+            return redirect(url_for("index"))
 
-        check_in=datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        ),
+        if not vtype:
+            flash("Vehicle Type is required.", "danger")
+            return redirect(url_for("index"))
 
-        security_checkin_by=None,
+        # ----------------------------------------------------
+        # DOCK VALIDATION
+        # ----------------------------------------------------
 
-        supervisor_unload_by=session.get(
-            "username"
-        ),
+        if dock_number:
 
-        unload_time=None,
+            try:
+                dock_int = int(dock_number)
 
-        check_out=None,
+                if dock_int < 1 or dock_int > 16:
+                    raise ValueError
 
-        checkout_by=None
-    )
+            except ValueError:
 
-    VEHICLES.append(vehicle)
+                flash(
+                    "Dock Assign Number must be between 1 and 16.",
+                    "danger"
+                )
 
-    NEXT_VEHICLE_ID += 1
+                return redirect(url_for("index"))
 
-    flash(
-        "Outbound vehicle entry submitted successfully.",
-        "success"
-    )
+        # ----------------------------------------------------
+        # CREATE OUTBOUND VEHICLE
+        # ----------------------------------------------------
+
+        now = current_time()
+
+        vehicle = Vehicle(
+
+            reg_no=reg_no,
+
+            type=vtype,
+
+            transporter=transporter,
+
+            supplier=supplier,
+
+            lr_number=lr_number,
+
+            contact_no=contact_no,
+
+            load_unload=load_unload,
+
+            driver_name=driver_name,
+
+            driver_mobile=driver_mobile,
+
+            invoice_number=invoice_number,
+
+            invoice_qty=invoice_qty,
+
+            number_of_boxes=number_of_boxes,
+
+            dock_number=dock_number,
+
+            remarks=remarks,
+
+            status="IN",
+
+            check_in=now,
+
+            check_out="",
+
+            flow_type="OUTBOUND",
+
+            security_checkin_by=None,
+
+            supervisor_unload_by=None,
+
+            unload_time=None,
+
+            outbound_supervisor_by=session.get("user"),
+
+            outbound_entry_time=now,
+
+            outbound_remarks=remarks,
+
+            checkout_by=None,
+
+            location=session.get("location"),
+        )
+
+        # ----------------------------------------------------
+        # SAVE TO DATABASE
+        # ----------------------------------------------------
+
+        db.session.add(vehicle)
+
+        db.session.commit()
+
+        flash(
+            "Outbound vehicle entry submitted successfully by Supervisor.",
+            "success"
+        )
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        logging.exception(
+            "Outbound entry error"
+        )
+
+        flash(
+            f"Error during outbound entry: {e}",
+            "danger"
+        )
 
     return redirect(url_for("index"))
 
