@@ -402,7 +402,7 @@ VehicleFlow | Dashboard
 
             <!-- SECURITY / LIFELONG -->
 
-            {% if role in ["security", "lifelong"] %}
+            {% if role in ["security", "wm"] %}
 
             <button
                 type="button"
@@ -851,7 +851,7 @@ VehicleFlow | Dashboard
 
                         <!-- SECURITY DATA -->
 
-                        {% if role in ["admin", "security", "lifelong"] %}
+                        {% if role in ["admin", "security", "wm"] %}
 
                         <th>
                             Security Qty
@@ -1008,7 +1008,7 @@ VehicleFlow | Dashboard
                              Security + Admin + Lifelong
                         ================================================== -->
 
-                        {% if role in ["admin", "security", "lifelong"] %}
+                        {% if role in ["admin", "security", "wm"] %}
 
                         <td>
 
@@ -1270,7 +1270,7 @@ VehicleFlow | Dashboard
                                      SECURITY / ADMIN CHECKOUT
                                 ========================================== -->
 
-                                {% if role in ["security", "lifelong", "admin"]
+                                {% if role in ["security", "wm", "admin"]
                                     and vehicle.status == "IN" %}
 
                                     {% if vehicle.flow_type == "OUTBOUND"
@@ -1420,7 +1420,7 @@ VehicleFlow | Dashboard
      SECURITY CHECK-IN MODAL
 ============================================================ -->
 
-{% if role in ["security", "lifelong"] %}
+{% if role in ["security", "wm"] %}
 
 <div
     class="modal fade"
