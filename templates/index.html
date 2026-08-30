@@ -1,4 +1,4 @@
-```html
+
 {% extends "base.html" %}
 
 {% block title %}
@@ -156,9 +156,7 @@ Vehicle Tracking Dashboard
 
                 <div class="row g-3">
 
-                    <!-- =================================================
-                         VEHICLE REGISTRATION
-                    ================================================== -->
+                    <!-- VEHICLE REGISTRATION -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -176,9 +174,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         VEHICLE TYPE DROPDOWN
-                    ================================================== -->
+                    <!-- VEHICLE TYPE -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -232,9 +228,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         LOAD / UNLOAD
-                    ================================================== -->
+                    <!-- LOAD / UNLOAD -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -261,9 +255,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         TRANSPORTER
-                    ================================================== -->
+                    <!-- TRANSPORTER -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -279,9 +271,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         SUPPLIER
-                    ================================================== -->
+                    <!-- SUPPLIER -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -297,10 +287,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         LR NUMBER
-                         Visible only for UNLOAD
-                    ================================================== -->
+                    <!-- LR NUMBER -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -317,9 +304,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         DRIVER NAME
-                    ================================================== -->
+                    <!-- DRIVER NAME -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -335,9 +320,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         DRIVER MOBILE
-                    ================================================== -->
+                    <!-- DRIVER MOBILE -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -353,10 +336,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         INVOICE NUMBER
-                         Visible only for UNLOAD
-                    ================================================== -->
+                    <!-- INVOICE NUMBER -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -373,10 +353,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         INVOICE QTY
-                         Visible only for UNLOAD
-                    ================================================== -->
+                    <!-- INVOICE QTY -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -394,10 +371,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         NUMBER OF BOXES
-                         Visible only for UNLOAD
-                    ================================================== -->
+                    <!-- NUMBER OF BOXES -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -414,9 +388,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         DOCK
-                    ================================================== -->
+                    <!-- DOCK -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -444,9 +416,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         REMARKS
-                    ================================================== -->
+                    <!-- REMARKS -->
 
                     <div class="col-xl-4 col-lg-6 col-md-8">
 
@@ -462,9 +432,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         CHECK-IN TIME
-                    ================================================== -->
+                    <!-- CHECK-IN TIME -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -480,9 +448,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         SUBMIT
-                    ================================================== -->
+                    <!-- SUBMIT -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 d-flex align-items-end">
 
@@ -749,7 +715,9 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- LOAD UNLOAD -->
+                    <!-- =================================================
+                         LOAD / UNLOAD FILTER
+                    ================================================== -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -758,21 +726,25 @@ Vehicle Tracking Dashboard
                         </label>
 
                         <select name="load_unload"
+                                id="filterLoadUnload"
                                 class="form-select">
 
-                            <option value="">
+                            <option value=""
+                                {% if not request.args.get('load_unload') %}
+                                    selected
+                                {% endif %}>
                                 All
                             </option>
 
                             <option value="Load"
-                                {% if request.args.get('load_unload', '')|lower == 'load' %}
+                                {% if request.args.get('load_unload', '')|trim|lower == 'load' %}
                                     selected
                                 {% endif %}>
                                 Load
                             </option>
 
                             <option value="Unload"
-                                {% if request.args.get('load_unload', '')|lower == 'unload' %}
+                                {% if request.args.get('load_unload', '')|trim|lower == 'unload' %}
                                     selected
                                 {% endif %}>
                                 Unload
@@ -967,17 +939,27 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- FLOW -->
+                            <!-- =================================================
+                                 FLOW
+
+                                 BUSINESS LOGIC:
+                                 UNLOAD -> INBOUND
+                                 LOAD   -> OUTBOUND
+
+                                 Do NOT use vehicle.flow_type here.
+                            ================================================== -->
 
                             <td>
 
-                                {% if vehicle.flow_type == 'INBOUND' %}
+                                {% if vehicle.load_unload
+                                      and vehicle.load_unload|trim|lower == 'unload' %}
 
                                     <span class="badge bg-info text-dark">
                                         INBOUND
                                     </span>
 
-                                {% elif vehicle.flow_type == 'OUTBOUND' %}
+                                {% elif vehicle.load_unload
+                                        and vehicle.load_unload|trim|lower == 'load' %}
 
                                     <span class="badge bg-warning text-dark">
                                         OUTBOUND
@@ -986,7 +968,7 @@ Vehicle Tracking Dashboard
                                 {% else %}
 
                                     <span class="badge bg-secondary">
-                                        {{ vehicle.flow_type or '-' }}
+                                        -
                                     </span>
 
                                 {% endif %}
@@ -1029,7 +1011,7 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_lr_number or '-' }}
 
@@ -1061,7 +1043,7 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_invoice_number or '-' }}
 
@@ -1079,7 +1061,7 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_invoice_qty or '-' }}
 
@@ -1097,7 +1079,7 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_number_of_boxes or '-' }}
 
@@ -1134,14 +1116,14 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     <span class="badge bg-primary">
                                         LOAD
                                     </span>
 
                                 {% elif vehicle.load_unload
-                                        and vehicle.load_unload|lower == 'unload' %}
+                                        and vehicle.load_unload|trim|lower == 'unload' %}
 
                                     <span class="badge bg-success">
                                         UNLOAD
@@ -1242,7 +1224,7 @@ Vehicle Tracking Dashboard
                             <td>
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {% if vehicle.supervisor_load_by %}
 
@@ -1269,34 +1251,8 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                {% elif vehicle.flow_type == 'OUTBOUND' %}
-
-                                    {% if vehicle.outbound_supervisor_by %}
-
-                                        <div class="small">
-
-                                            <strong>
-                                                {{ vehicle.outbound_supervisor_by }}
-                                            </strong>
-
-                                            <br>
-
-                                            <span class="text-success">
-                                                Outbound Entry
-                                            </span>
-
-                                        </div>
-
-                                    {% else %}
-
-                                        <span class="badge bg-warning text-dark">
-                                            Pending
-                                        </span>
-
-                                    {% endif %}
-
-
-                                {% else %}
+                                {% elif vehicle.load_unload
+                                        and vehicle.load_unload|trim|lower == 'unload' %}
 
                                     {% if vehicle.supervisor_unload_by %}
 
@@ -1322,6 +1278,13 @@ Vehicle Tracking Dashboard
 
                                     {% endif %}
 
+
+                                {% else %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+
                                 {% endif %}
 
                             </td>
@@ -1332,7 +1295,7 @@ Vehicle Tracking Dashboard
                             <td class="text-nowrap small">
 
                                 {% if vehicle.load_unload
-                                      and vehicle.load_unload|lower == 'load' %}
+                                      and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_completed_time or '-' }}
 
@@ -1365,9 +1328,7 @@ Vehicle Tracking Dashboard
 
                             <td class="text-center action-cell">
 
-                                <!-- =========================================
-                                     ALREADY OUT
-                                ========================================== -->
+                                <!-- ALREADY OUT -->
 
                                 {% if vehicle.status == 'OUT' %}
 
@@ -1379,9 +1340,7 @@ Vehicle Tracking Dashboard
                                     </span>
 
 
-                                <!-- =========================================
-                                     INBOUND LOAD
-                                ========================================== -->
+                                <!-- INBOUND LOAD -->
 
                                 {% elif vehicle.flow_type == 'INBOUND'
                                       and vehicle.load_unload
@@ -1416,11 +1375,6 @@ Vehicle Tracking Dashboard
 
                                     {% else %}
 
-                                        <!-- =================================
-                                             LOAD COMPLETE
-                                             Existing GET checkout flow
-                                        ================================== -->
-
                                         {% if role in ['security', 'lifelong', 'admin'] %}
 
                                             <a href="{{ url_for(
@@ -1448,9 +1402,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =========================================
-                                     INBOUND UNLOAD
-                                ========================================== -->
+                                <!-- INBOUND UNLOAD -->
 
                                 {% elif vehicle.flow_type == 'INBOUND'
                                       and vehicle.load_unload
@@ -1458,10 +1410,6 @@ Vehicle Tracking Dashboard
 
 
                                     {% if not vehicle.supervisor_unload_by %}
-
-                                        <!-- =================================
-                                             UNLOAD PENDING
-                                        ================================== -->
 
                                         {% if role == 'supervisor' %}
 
@@ -1489,17 +1437,6 @@ Vehicle Tracking Dashboard
 
 
                                     {% else %}
-
-                                        <!-- =================================
-                                             UNLOAD COMPLETED
-
-                                             IMPORTANT:
-                                             Existing backend checkout route
-                                             performs actual checkout on POST.
-
-                                             Therefore unload uses POST form.
-                                             No backend change required.
-                                        ================================== -->
 
                                         {% if role in ['security', 'lifelong', 'admin'] %}
 
@@ -1540,9 +1477,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =========================================
-                                     DIRECT OUTBOUND
-                                ========================================== -->
+                                <!-- DIRECT OUTBOUND -->
 
                                 {% elif vehicle.flow_type == 'OUTBOUND' %}
 
@@ -1571,9 +1506,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =========================================
-                                     UNKNOWN
-                                ========================================== -->
+                                <!-- UNKNOWN -->
 
                                 {% else %}
 
@@ -1855,7 +1788,7 @@ Vehicle Tracking Dashboard
 
 
     /* =========================================================
-       HIDDEN LOAD/UNLOAD FIELDS
+       LOAD / UNLOAD FIELDS
     ========================================================== */
 
     .unload-only-field {
@@ -1923,7 +1856,7 @@ document.addEventListener("DOMContentLoaded", function () {
          Number of Boxes
 
        LOAD:
-         All above fields hidden
+         Above fields hidden
     ========================================================== */
 
     const loadUnloadSelect = document.getElementById(
@@ -1942,7 +1875,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const selectedValue =
-            loadUnloadSelect.value.toLowerCase();
+            loadUnloadSelect.value.trim().toLowerCase();
 
 
         if (selectedValue === "load") {
@@ -1950,11 +1883,6 @@ document.addEventListener("DOMContentLoaded", function () {
             unloadOnlyFields.forEach(function (field) {
 
                 field.style.display = "none";
-
-                /*
-                 * Clear values when Load is selected.
-                 * This prevents accidental entry from hidden UI fields.
-                 */
 
                 const input =
                     field.querySelector("input");
@@ -1985,11 +1913,46 @@ document.addEventListener("DOMContentLoaded", function () {
             updateLoadUnloadFields
         );
 
-        /*
-         * Run once on page load.
-         */
-
         updateLoadUnloadFields();
+
+    }
+
+
+    /* =========================================================
+       FILTER LOAD / UNLOAD
+
+       The selected filter value is submitted exactly as:
+
+           Load
+           Unload
+
+       Backend can therefore filter vehicle.load_unload
+       without depending on flow_type.
+    ========================================================== */
+
+    const filterForm =
+        document.querySelector(
+            'form[action="{{ url_for("index") }}"]'
+        );
+
+    const filterLoadUnload =
+        document.getElementById(
+            "filterLoadUnload"
+        );
+
+
+    if (filterForm && filterLoadUnload) {
+
+        filterForm.addEventListener(
+            "submit",
+            function () {
+
+                filterLoadUnload.value =
+                    filterLoadUnload.value
+                        .trim();
+
+            }
+        );
 
     }
 
@@ -1998,4 +1961,4 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 {% endblock %}
-```
+
