@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <title>
-        {% block title %}Warehouse Vehicle Management{% endblock %}
+        {% block title %}Vehicle Management System{% endblock %}
     </title>
 
     <!-- Bootstrap 5 -->
@@ -22,22 +23,61 @@
         rel="stylesheet"
     >
 
+    <!-- Inter Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
     <style>
+
+        /* =====================================================
+           ROOT
+        ====================================================== */
+
         :root {
+
             --sidebar-width: 260px;
             --topbar-height: 70px;
+
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+
             --dark: #0f172a;
             --dark-2: #111827;
+            --dark-3: #172554;
+
             --body-bg: #f4f7fb;
+
             --card-radius: 18px;
+
             --border: #e5e7eb;
+
+            --text-main: #172033;
+            --text-muted: #64748b;
+
+            --sidebar-text: #cbd5e1;
+
+            --shadow-sm:
+                0 2px 8px rgba(15, 23, 42, .05);
+
+            --shadow-md:
+                0 8px 24px rgba(15, 23, 42, .08);
+
+            --shadow-lg:
+                0 18px 45px rgba(15, 23, 42, .12);
         }
+
+
+        /* =====================================================
+           GLOBAL
+        ====================================================== */
 
         * {
             box-sizing: border-box;
         }
+
 
         html,
         body {
@@ -46,476 +86,1704 @@
             min-height: 100%;
         }
 
+
         body {
+
             font-family:
-                Inter,
+                "Inter",
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
                 Roboto,
                 Arial,
                 sans-serif;
-            background: var(--body-bg);
-            color: #172033;
+
+            background:
+                var(--body-bg);
+
+            color:
+                var(--text-main);
+
+            -webkit-font-smoothing:
+                antialiased;
+
+            text-rendering:
+                optimizeLegibility;
         }
+
 
         a {
             text-decoration: none;
         }
 
-        /* =========================
+
+        button,
+        a {
+            -webkit-tap-highlight-color:
+                transparent;
+        }
+
+
+        /* =====================================================
+           CUSTOM SCROLLBAR
+        ====================================================== */
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+
+        ::-webkit-scrollbar-thumb {
+
+            background:
+                #cbd5e1;
+
+            border-radius:
+                20px;
+        }
+
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background:
+                #94a3b8;
+        }
+
+
+        /* =====================================================
            SIDEBAR
-        ========================== */
+        ====================================================== */
 
         .app-sidebar {
+
             position: fixed;
+
             left: 0;
             top: 0;
             bottom: 0;
-            width: var(--sidebar-width);
+
+            width:
+                var(--sidebar-width);
+
             background:
                 linear-gradient(
                     180deg,
                     #0f172a 0%,
-                    #111827 55%,
+                    #111827 52%,
                     #172554 100%
                 );
-            color: white;
-            z-index: 1050;
-            overflow-y: auto;
-            transition: transform .3s ease;
+
+            color:
+                white;
+
+            z-index:
+                1050;
+
+            overflow-y:
+                auto;
+
+            overflow-x:
+                hidden;
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease;
+
+            box-shadow:
+                8px 0 30px rgba(15, 23, 42, .10);
         }
+
+
+        /*
+         * Subtle sidebar glow
+         */
+
+        .app-sidebar::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            top: 90px;
+            left: -90px;
+
+            background:
+                rgba(37, 99, 235, .13);
+
+            border-radius:
+                50%;
+
+            filter:
+                blur(45px);
+
+            pointer-events:
+                none;
+        }
+
+
+        /* =====================================================
+           BRAND AREA
+        ====================================================== */
 
         .brand-area {
-            height: var(--topbar-height);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 22px;
-            border-bottom: 1px solid rgba(255,255,255,.08);
+
+            min-height:
+                var(--topbar-height);
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
+            padding:
+                10px 18px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,.08);
+
+            position:
+                relative;
+
+            z-index:
+                1;
         }
 
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255,255,255,.12);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 21px;
+
+        /*
+         * Premium logo container.
+         *
+         * Existing logo source remains unchanged.
+         */
+
+        .brand-logo-box {
+
+            width:
+                58px;
+
+            height:
+                46px;
+
+            flex-shrink:
+                0;
+
+            background:
+                #061b3f;
+
+            border:
+                1px solid rgba(255,255,255,.10);
+
+            border-radius:
+                10px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                2px;
+
+            overflow:
+                hidden;
+
+            box-shadow:
+                0 4px 14px rgba(0,0,0,.28);
+
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease;
         }
+
+
+        .brand-logo-box:hover {
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 7px 20px rgba(0,0,0,.34);
+        }
+
+
+        .brand-logo {
+
+            display:
+                block;
+
+            width:
+                100%;
+
+            height:
+                100%;
+
+            object-fit:
+                contain;
+
+            border-radius:
+                8px;
+        }
+
 
         .brand-text {
-            font-size: 17px;
-            font-weight: 700;
-            line-height: 1.1;
+
+            font-size:
+                15px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.15;
+
+            color:
+                #ffffff;
+
+            letter-spacing:
+                -.2px;
+
+            white-space:
+                nowrap;
         }
+
 
         .brand-subtitle {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 3px;
+
+            font-size:
+                10px;
+
+            color:
+                #94a3b8;
+
+            margin-top:
+                4px;
+
+            line-height:
+                1.2;
+
+            white-space:
+                nowrap;
+
+            letter-spacing:
+                .15px;
         }
+
+
+        /* =====================================================
+           SIDEBAR SECTION
+        ====================================================== */
 
         .sidebar-section {
-            padding: 20px 14px 5px;
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+
+            padding:
+                21px 16px 7px;
+
+            color:
+                #64748b;
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                1.15px;
+
+            position:
+                relative;
+
+            z-index:
+                1;
         }
+
+
+        /* =====================================================
+           SIDEBAR NAV
+        ====================================================== */
 
         .sidebar-nav {
-            padding: 8px 12px;
+
+            padding:
+                7px 12px;
         }
+
 
         .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #cbd5e1;
-            padding: 11px 13px;
-            border-radius: 11px;
-            margin-bottom: 4px;
-            font-size: 14px;
-            transition: all .2s ease;
+
+            position:
+                relative;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
+            color:
+                var(--sidebar-text);
+
+            padding:
+                11px 13px;
+
+            border-radius:
+                11px;
+
+            margin-bottom:
+                5px;
+
+            font-size:
+                13.5px;
+
+            font-weight:
+                500;
+
+            transition:
+                all .22s ease;
+
+            overflow:
+                hidden;
         }
+
+
+        /*
+         * Animated background layer
+         */
+
+        .sidebar-link::before {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                0;
+
+            background:
+                rgba(255,255,255,.06);
+
+            transform:
+                translateX(-105%);
+
+            transition:
+                transform .25s ease;
+
+            border-radius:
+                inherit;
+        }
+
+
+        .sidebar-link:hover::before {
+
+            transform:
+                translateX(0);
+        }
+
 
         .sidebar-link i {
-            width: 20px;
-            text-align: center;
-            font-size: 17px;
+
+            width:
+                20px;
+
+            min-width:
+                20px;
+
+            text-align:
+                center;
+
+            font-size:
+                17px;
+
+            position:
+                relative;
+
+            z-index:
+                1;
+
+            transition:
+                transform .22s ease;
         }
 
-        .sidebar-link:hover,
-        .sidebar-link.active {
-            color: white;
-            background: rgba(255,255,255,.10);
+
+        .sidebar-link span {
+
+            position:
+                relative;
+
+            z-index:
+                1;
         }
 
-        .sidebar-link.active {
-            box-shadow: inset 3px 0 0 #60a5fa;
+
+        .sidebar-link:hover {
+
+            color:
+                white;
+
+            transform:
+                translateX(3px);
         }
+
+
+        .sidebar-link:hover i {
+
+            transform:
+                scale(1.08);
+        }
+
+
+        .sidebar-link.active {
+
+            color:
+                white;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(37,99,235,.28),
+                    rgba(37,99,235,.10)
+                );
+
+            border:
+                1px solid rgba(96,165,250,.13);
+
+            box-shadow:
+                0 6px 18px rgba(0,0,0,.12);
+        }
+
+
+        .sidebar-link.active::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                0;
+
+            top:
+                50%;
+
+            transform:
+                translateY(-50%);
+
+            width:
+                3px;
+
+            height:
+                23px;
+
+            border-radius:
+                0 5px 5px 0;
+
+            background:
+                #60a5fa;
+        }
+
+
+        /* =====================================================
+           SIDEBAR USER
+        ====================================================== */
 
         .sidebar-user {
-            position: absolute;
-            left: 12px;
-            right: 12px;
-            bottom: 15px;
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.07);
-            border-radius: 14px;
-            padding: 12px;
+
+            position:
+                absolute;
+
+            left:
+                12px;
+
+            right:
+                12px;
+
+            bottom:
+                15px;
+
+            background:
+                rgba(255,255,255,.055);
+
+            border:
+                1px solid rgba(255,255,255,.085);
+
+            border-radius:
+                15px;
+
+            padding:
+                12px;
+
+            backdrop-filter:
+                blur(10px);
+
+            -webkit-backdrop-filter:
+                blur(10px);
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,.12);
         }
+
 
         .user-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 11px;
-            background: #2563eb;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
+
+            width:
+                38px;
+
+            height:
+                38px;
+
+            border-radius:
+                11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #1d4ed8
+                );
+
+            color:
+                white;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            font-size:
+                14px;
+
+            font-weight:
+                800;
+
+            box-shadow:
+                0 5px 14px rgba(37,99,235,.30);
+
+            flex-shrink:
+                0;
         }
+
 
         .user-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
+
+            font-size:
+                13px;
+
+            font-weight:
+                700;
+
+            color:
+                white;
+
+            letter-spacing:
+                -.1px;
         }
+
 
         .user-role {
-            font-size: 11px;
-            color: #94a3b8;
-            text-transform: capitalize;
+
+            font-size:
+                10.5px;
+
+            color:
+                #94a3b8;
+
+            text-transform:
+                capitalize;
+
+            margin-top:
+                2px;
         }
 
-        /* =========================
+
+        .sidebar-user .text-danger {
+
+            width:
+                32px;
+
+            height:
+                32px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                9px;
+
+            transition:
+                all .2s ease;
+        }
+
+
+        .sidebar-user .text-danger:hover {
+
+            background:
+                rgba(239,68,68,.12);
+
+            transform:
+                scale(1.05);
+        }
+
+
+        /* =====================================================
            MAIN
-        ========================== */
+        ====================================================== */
 
         .app-main {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
+
+            margin-left:
+                var(--sidebar-width);
+
+            min-height:
+                100vh;
+
+            position:
+                relative;
         }
+
+
+        /* =====================================================
+           TOPBAR
+        ====================================================== */
 
         .topbar {
-            height: var(--topbar-height);
-            background: white;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+
+            height:
+                var(--topbar-height);
+
+            background:
+                rgba(255,255,255,.94);
+
+            border-bottom:
+                1px solid var(--border);
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            padding:
+                0 28px;
+
+            position:
+                sticky;
+
+            top:
+                0;
+
+            z-index:
+                1000;
+
+            backdrop-filter:
+                blur(14px);
+
+            -webkit-backdrop-filter:
+                blur(14px);
+
+            box-shadow:
+                0 2px 12px rgba(15,23,42,.025);
         }
+
 
         .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                15px;
+
+            min-width:
+                0;
         }
+
 
         .mobile-menu-btn {
-            display: none;
-            border: 0;
-            background: #f1f5f9;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+
+            display:
+                none;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                #f8fafc;
+
+            color:
+                #334155;
+
+            width:
+                40px;
+
+            height:
+                40px;
+
+            border-radius:
+                10px;
+
+            transition:
+                all .2s ease;
         }
+
+
+        .mobile-menu-btn:hover {
+
+            background:
+                #eff6ff;
+
+            color:
+                var(--primary);
+
+            border-color:
+                #bfdbfe;
+        }
+
 
         .page-heading {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0;
+
+            font-size:
+                20px;
+
+            font-weight:
+                800;
+
+            color:
+                #0f172a;
+
+            margin:
+                0;
+
+            letter-spacing:
+                -.4px;
         }
+
 
         .page-subheading {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 2px;
+
+            font-size:
+                11.5px;
+
+            color:
+                #64748b;
+
+            margin-top:
+                3px;
+
+            font-weight:
+                500;
         }
+
 
         .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
         }
+
+
+        /* =====================================================
+           LOCATION BADGE
+        ====================================================== */
 
         .location-badge {
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f8fbff
+                );
+
+            color:
+                #1d4ed8;
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid #dbeafe;
+
+            border-radius:
+                10px;
+
+            font-size:
+                11.5px;
+
+            font-weight:
+                700;
+
+            box-shadow:
+                0 2px 7px rgba(37,99,235,.05);
+
+            white-space:
+                nowrap;
         }
+
+
+        .location-badge i {
+
+            font-size:
+                13px;
+        }
+
+
+        /* =====================================================
+           ROLE BADGE
+        ====================================================== */
 
         .role-badge {
-            background: #f1f5f9;
-            color: #334155;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
+
+            background:
+                #f8fafc;
+
+            color:
+                #334155;
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                10px;
+
+            font-size:
+                11.5px;
+
+            font-weight:
+                700;
+
+            text-transform:
+                capitalize;
+
+            box-shadow:
+                0 2px 7px rgba(15,23,42,.035);
+
+            white-space:
+                nowrap;
         }
+
+
+        .role-badge i {
+
+            color:
+                #64748b;
+        }
+
+
+        /* =====================================================
+           LOGOUT BUTTON
+        ====================================================== */
 
         .logout-btn {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            background: #fef2f2;
-            color: #dc2626;
+
+            width:
+                38px;
+
+            height:
+                38px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                10px;
+
+            background:
+                #fef2f2;
+
+            border:
+                1px solid #fee2e2;
+
+            color:
+                #dc2626;
+
+            transition:
+                all .2s ease;
         }
+
 
         .logout-btn:hover {
-            background: #fee2e2;
-            color: #b91c1c;
+
+            background:
+                #fee2e2;
+
+            color:
+                #b91c1c;
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 5px 12px rgba(220,38,38,.10);
         }
+
+
+        .logout-btn i {
+
+            font-size:
+                16px;
+        }
+
+
+        /* =====================================================
+           PAGE CONTENT
+        ====================================================== */
 
         .page-content {
-            padding: 28px;
+
+            padding:
+                28px;
+
+            animation:
+                pageFade .35s ease;
         }
 
-        /* =========================
-           FLASH
-        ========================== */
 
-        .flash-wrapper {
-            position: fixed;
-            top: 85px;
-            right: 25px;
-            width: min(420px, calc(100vw - 30px));
-            z-index: 2000;
+        @keyframes pageFade {
+
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .flash-wrapper .alert {
-            border: none;
-            border-radius: 13px;
-            box-shadow: 0 10px 30px rgba(15,23,42,.12);
+
+        /* =====================================================
+           COMMON BOOTSTRAP POLISH
+           No application logic changed.
+        ====================================================== */
+
+        .card {
+
+            border:
+                1px solid rgba(226,232,240,.85);
+
+            border-radius:
+                var(--card-radius);
+
+            box-shadow:
+                var(--shadow-sm);
+
+            transition:
+                box-shadow .25s ease,
+                transform .25s ease;
         }
 
-        /* =========================
-           BUTTONS
-        ========================== */
 
-        .btn-primary {
-            background: var(--primary);
-            border-color: var(--primary);
+        .card:hover {
+
+            box-shadow:
+                var(--shadow-md);
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            border-color: var(--primary-dark);
+
+        .form-control,
+        .form-select {
+
+            border-color:
+                #dbe2ea;
+
+            border-radius:
+                10px;
+
+            min-height:
+                42px;
+
+            font-size:
+                13px;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
         }
+
+
+        .form-control:focus,
+        .form-select:focus {
+
+            border-color:
+                #93c5fd;
+
+            box-shadow:
+                0 0 0 .2rem rgba(37,99,235,.10);
+        }
+
 
         .btn {
-            border-radius: 10px;
+
+            border-radius:
+                10px;
+
+            font-weight:
+                600;
+
+            transition:
+                all .2s ease;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================== */
+
+        .btn-primary {
+
+            background:
+                var(--primary);
+
+            border-color:
+                var(--primary);
+
+            box-shadow:
+                0 4px 10px rgba(37,99,235,.16);
+        }
+
+
+        .btn-primary:hover {
+
+            background:
+                var(--primary-dark);
+
+            border-color:
+                var(--primary-dark);
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 7px 16px rgba(37,99,235,.20);
+        }
+
+
+        .btn-primary:active {
+
+            transform:
+                translateY(0);
+        }
+
+
+        /* =====================================================
+           FLASH
+        ====================================================== */
+
+        .flash-wrapper {
+
+            position:
+                fixed;
+
+            top:
+                85px;
+
+            right:
+                25px;
+
+            width:
+                min(420px, calc(100vw - 30px));
+
+            z-index:
+                2000;
+
+            pointer-events:
+                none;
+        }
+
+
+        .flash-wrapper .alert {
+
+            border:
+                1px solid rgba(226,232,240,.7);
+
+            border-radius:
+                13px;
+
+            box-shadow:
+                0 12px 35px rgba(15,23,42,.13);
+
+            pointer-events:
+                auto;
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        /* =====================================================
+           SIDEBAR OVERLAY
+        ====================================================== */
 
         .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15,23,42,.5);
-            z-index: 1040;
+
+            display:
+                none;
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            background:
+                rgba(15,23,42,.52);
+
+            backdrop-filter:
+                blur(2px);
+
+            -webkit-backdrop-filter:
+                blur(2px);
+
+            z-index:
+                1040;
         }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
 
         @media (max-width: 991px) {
+
             .app-sidebar {
-                transform: translateX(-100%);
+
+                transform:
+                    translateX(-100%);
+
+                box-shadow:
+                    none;
             }
+
 
             .app-sidebar.show {
-                transform: translateX(0);
+
+                transform:
+                    translateX(0);
+
+                box-shadow:
+                    10px 0 35px rgba(15,23,42,.22);
             }
+
 
             .sidebar-overlay.show {
-                display: block;
+
+                display:
+                    block;
             }
+
 
             .app-main {
-                margin-left: 0;
+
+                margin-left:
+                    0;
             }
+
 
             .mobile-menu-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
+
+                display:
+                    inline-flex;
+
+                align-items:
+                    center;
+
+                justify-content:
+                    center;
             }
 
+
             .page-content {
-                padding: 20px;
+
+                padding:
+                    20px;
+            }
+
+
+            .brand-area {
+
+                padding-left:
+                    16px;
+
+                padding-right:
+                    16px;
             }
         }
+
+
+        @media (max-width: 767px) {
+
+            .topbar-right {
+
+                gap:
+                    6px;
+            }
+
+
+            .role-badge {
+
+                padding:
+                    8px 10px;
+            }
+
+
+            .page-subheading {
+
+                display:
+                    none;
+            }
+        }
+
 
         @media (max-width: 575px) {
+
             .topbar {
-                padding: 0 15px;
+
+                padding:
+                    0 15px;
             }
+
 
             .location-badge {
-                display: none;
+
+                display:
+                    none;
             }
+
+
+            .role-badge {
+
+                font-size:
+                    10.5px;
+
+                padding:
+                    7px 9px;
+            }
+
+
+            .role-badge i {
+
+                display:
+                    none;
+            }
+
 
             .page-content {
-                padding: 15px;
+
+                padding:
+                    15px;
             }
 
+
             .page-heading {
-                font-size: 17px;
+
+                font-size:
+                    17px;
+            }
+
+
+            .mobile-menu-btn {
+
+                width:
+                    38px;
+
+                height:
+                    38px;
+            }
+
+
+            .brand-logo-box {
+
+                width:
+                    52px;
+
+                height:
+                    42px;
+            }
+
+
+            .brand-logo {
+
+                max-width:
+                    46px;
+
+                max-height:
+                    36px;
+            }
+
+
+            .brand-text {
+
+                font-size:
+                    14px;
+            }
+
+
+            .brand-subtitle {
+
+                font-size:
+                    9px;
+            }
+
+
+            .sidebar-user {
+
+                bottom:
+                    12px;
             }
         }
+
+
+        /* =====================================================
+           VERY SMALL DEVICES
+        ====================================================== */
+
+        @media (max-width: 380px) {
+
+            .topbar {
+
+                padding:
+                    0 11px;
+            }
+
+
+            .page-heading {
+
+                font-size:
+                    16px;
+            }
+
+
+            .logout-btn {
+
+                width:
+                    35px;
+
+                height:
+                    35px;
+            }
+
+
+            .role-badge {
+
+                display:
+                    none;
+            }
+        }
+
     </style>
 
     {% block extra_css %}{% endblock %}
+
 </head>
+
 
 <body>
 
+
 {% if session.get("user") %}
 
-    <!-- SIDEBAR OVERLAY -->
+
+    <!-- =====================================================
+         SIDEBAR OVERLAY
+    ====================================================== -->
+
     <div
         class="sidebar-overlay"
         id="sidebarOverlay"
         onclick="closeSidebar()">
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="app-sidebar" id="appSidebar">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="app-sidebar"
+        id="appSidebar">
+
+
+        <!-- =================================================
+             BRAND
+        ================================================== -->
 
         <div class="brand-area">
-            <div class="brand-icon">
-                <i class="bi bi-truck"></i>
+
+            <div class="brand-logo-box">
+
+                <img
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="TVS Supply Chain Solutions"
+                    class="brand-logo"
+                >
+
             </div>
 
+
             <div>
+
                 <div class="brand-text">
-                    Warehouse
+                    Vehicle
                 </div>
 
                 <div class="brand-subtitle">
-                    Vehicle Management
+                    Management System
                 </div>
+
             </div>
+
         </div>
+
+
+        <!-- =================================================
+             MAIN MENU
+        ================================================== -->
 
         <div class="sidebar-section">
             Main Menu
         </div>
 
+
         <nav class="sidebar-nav">
+
+
+            <!-- DASHBOARD -->
 
             <a
                 href="{{ url_for('index') }}"
                 class="sidebar-link active">
+
                 <i class="bi bi-grid-1x2-fill"></i>
-                <span>Dashboard</span>
+
+                <span>
+                    Dashboard
+                </span>
+
             </a>
 
-            {% if role in ["security", "lifelong"] %}
+
+            <!-- INBOUND CHECK-IN -->
+
+            {% if role in ["security", "wm"] %}
+
             <a
                 href="{{ url_for('index') }}#checkin"
                 class="sidebar-link">
+
                 <i class="bi bi-box-arrow-in-right"></i>
-                <span>Inbound Check-In</span>
+
+                <span>
+                    Inbound Check-In
+                </span>
+
             </a>
+
             {% endif %}
 
+
+            <!-- OUTBOUND ENTRY -->
+
             {% if role == "supervisor" %}
+
             <a
                 href="{{ url_for('index') }}#outbound"
                 class="sidebar-link">
+
                 <i class="bi bi-box-arrow-right"></i>
-                <span>Outbound Entry</span>
+
+                <span>
+                    Outbound Entry
+                </span>
+
             </a>
+
             {% endif %}
 
+
+            <!-- EXPORT -->
+
             {% if role in ["admin", "supervisor"] %}
+
             <a
                 href="{{ url_for('export') }}"
                 class="sidebar-link">
+
                 <i class="bi bi-file-earmark-spreadsheet"></i>
-                <span>Export CSV</span>
+
+                <span>
+                    Export CSV
+                </span>
+
             </a>
+
             {% endif %}
 
+
+            <!-- =================================================
+                 ADMINISTRATION
+            ================================================== -->
+
             {% if role == "admin" %}
+
             <div class="sidebar-section">
                 Administration
             </div>
 
+
             <a
                 href="{{ url_for('admin_users') }}"
                 class="sidebar-link">
+
                 <i class="bi bi-people-fill"></i>
-                <span>User Management</span>
+
+                <span>
+                    User Management
+                </span>
+
             </a>
+
             {% endif %}
+
 
         </nav>
 
+
+        <!-- =================================================
+             USER
+        ================================================== -->
+
         <div class="sidebar-user">
+
             <div class="d-flex align-items-center gap-2">
 
+
                 <div class="user-avatar">
+
                     {{ session.get("user", "U")[0]|upper }}
+
                 </div>
+
 
                 <div class="flex-grow-1 overflow-hidden">
+
                     <div class="user-name text-truncate">
+
                         {{ session.get("user") }}
+
                     </div>
 
+
                     <div class="user-role">
+
                         {{ session.get("role") }}
+
                     </div>
+
                 </div>
+
 
                 <a
                     href="{{ url_for('logout') }}"
                     class="text-danger"
                     title="Logout">
+
                     <i class="bi bi-box-arrow-right fs-5"></i>
+
                 </a>
 
+
             </div>
+
         </div>
+
 
     </aside>
 
-    <!-- MAIN -->
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
+
     <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
 
         <header class="topbar">
 
+
             <div class="topbar-left">
+
 
                 <button
                     class="mobile-menu-btn"
-                    onclick="toggleSidebar()">
+                    onclick="toggleSidebar()"
+                    aria-label="Open menu">
+
                     <i class="bi bi-list fs-5"></i>
+
                 </button>
 
+
                 <div>
+
                     {% block page_header %}
+
                     <h1 class="page-heading">
                         Dashboard
                     </h1>
@@ -523,121 +1791,267 @@
                     <div class="page-subheading">
                         Vehicle movement and warehouse operations
                     </div>
+
                     {% endblock %}
+
                 </div>
+
 
             </div>
 
+
+            <!-- =================================================
+                 TOPBAR RIGHT
+            ================================================== -->
+
             <div class="topbar-right">
 
+
                 {% if location %}
+
                 <div class="location-badge">
+
                     <i class="bi bi-geo-alt me-1"></i>
+
                     {{ location }}
+
                 </div>
+
                 {% endif %}
 
+
                 <div class="role-badge">
+
                     <i class="bi bi-person-badge me-1"></i>
+
                     {{ role }}
+
                 </div>
+
 
                 <a
                     href="{{ url_for('logout') }}"
                     class="logout-btn"
                     title="Logout">
+
                     <i class="bi bi-power"></i>
+
                 </a>
+
 
             </div>
 
+
         </header>
 
-        <!-- FLASH MESSAGES -->
+
+        <!-- =================================================
+             FLASH MESSAGES
+        ================================================== -->
+
         <div class="flash-wrapper">
-            {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% with messages =
+                get_flashed_messages(
+                    with_categories=true
+                )
+            %}
+
                 {% if messages %}
+
                     {% for category, message in messages %}
+
                     <div
                         class="alert alert-{{ category }} alert-dismissible fade show"
                         role="alert">
+
                         {{ message }}
+
                         <button
                             type="button"
                             class="btn-close"
                             data-bs-dismiss="alert">
                         </button>
+
                     </div>
+
                     {% endfor %}
+
                 {% endif %}
+
             {% endwith %}
+
         </div>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
 
         <section class="page-content">
 
             {% block content %}
+
             {% endblock %}
 
         </section>
 
+
     </main>
+
 
 {% else %}
 
+
+    <!-- =====================================================
+         PUBLIC CONTENT
+    ====================================================== -->
+
     {% block public_content %}
+
     {% endblock %}
+
 
 {% endif %}
 
+
+<!-- =========================================================
+     BOOTSTRAP JS
+========================================================== -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
+
+<!-- =========================================================
+     SIDEBAR JS
+========================================================== -->
+
 <script>
+
     function toggleSidebar() {
-        const sidebar = document.getElementById("appSidebar");
-        const overlay = document.getElementById("sidebarOverlay");
+
+        const sidebar =
+            document.getElementById("appSidebar");
+
+        const overlay =
+            document.getElementById("sidebarOverlay");
+
 
         if (sidebar) {
+
             sidebar.classList.toggle("show");
+
         }
 
+
         if (overlay) {
+
             overlay.classList.toggle("show");
+
         }
+
     }
+
 
     function closeSidebar() {
-        const sidebar = document.getElementById("appSidebar");
-        const overlay = document.getElementById("sidebarOverlay");
+
+        const sidebar =
+            document.getElementById("appSidebar");
+
+        const overlay =
+            document.getElementById("sidebarOverlay");
+
 
         if (sidebar) {
+
             sidebar.classList.remove("show");
+
         }
+
 
         if (overlay) {
+
             overlay.classList.remove("show");
+
         }
+
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
 
-        setTimeout(function () {
+    /* =====================================================
+       CLOSE MOBILE SIDEBAR AFTER NAVIGATION
+       UI ONLY - NO APPLICATION LOGIC
+    ====================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
             document
-                .querySelectorAll(".flash-wrapper .alert")
-                .forEach(function (alert) {
+                .querySelectorAll(".sidebar-link")
+                .forEach(
+                    function (link) {
 
-                    try {
-                        bootstrap.Alert.getOrCreateInstance(alert).close();
-                    } catch (e) {}
-                });
-        }, 5000);
+                        link.addEventListener(
+                            "click",
+                            function () {
 
-    });
+                                if (
+                                    window.innerWidth <= 991
+                                ) {
+
+                                    closeSidebar();
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+            /* =================================================
+               AUTO CLOSE FLASH MESSAGES
+            ================================================== */
+
+            setTimeout(
+                function () {
+
+                    document
+                        .querySelectorAll(
+                            ".flash-wrapper .alert"
+                        )
+                        .forEach(
+                            function (alert) {
+
+                                try {
+
+                                    bootstrap.Alert
+                                        .getOrCreateInstance(
+                                            alert
+                                        )
+                                        .close();
+
+                                } catch (e) {}
+
+                            }
+                        );
+
+                },
+                5000
+            );
+
+        }
+    );
+
 </script>
 
+
 {% block extra_js %}{% endblock %}
+
 
 </body>
 </html>
