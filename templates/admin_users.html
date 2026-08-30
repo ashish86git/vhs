@@ -9,6 +9,10 @@ User Management | VehicleFlow
 
 <div class="container-fluid px-3 px-lg-4 py-4">
 
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
+
     <div class="page-header mb-4">
 
         <div>
@@ -29,16 +33,24 @@ User Management | VehicleFlow
 
 
         <button
+            type="button"
             class="btn btn-primary"
             data-bs-toggle="modal"
             data-bs-target="#createUserModal"
         >
+
             <i class="bi bi-person-plus me-2"></i>
+
             Create User
+
         </button>
 
     </div>
 
+
+    <!-- =========================================================
+         USER TABLE
+    ========================================================== -->
 
     <div class="dashboard-card">
 
@@ -47,8 +59,11 @@ User Management | VehicleFlow
             <div>
 
                 <h5>
+
                     <i class="bi bi-people me-2"></i>
+
                     System Users
+
                 </h5>
 
                 <small>
@@ -69,12 +84,19 @@ User Management | VehicleFlow
                     <tr>
 
                         <th>ID</th>
+
                         <th>Username</th>
+
                         <th>Phone Number</th>
+
                         <th>Email ID</th>
+
                         <th>Role</th>
+
                         <th>Location</th>
+
                         <th>Status</th>
+
                         <th>Action</th>
 
                     </tr>
@@ -88,23 +110,35 @@ User Management | VehicleFlow
 
                     <tr>
 
+                        <!-- =================================================
+                             ID
+                        ================================================== -->
+
                         <td>
+
                             #{{ u.id }}
+
                         </td>
 
 
-                        <!-- USERNAME -->
+                        <!-- =================================================
+                             USERNAME
+                        ================================================== -->
 
                         <td>
 
                             <div class="user-table-info">
 
                                 <span class="user-avatar">
+
                                     {{ u.username[0]|upper }}
+
                                 </span>
 
                                 <strong>
+
                                     {{ u.username }}
+
                                 </strong>
 
                             </div>
@@ -112,21 +146,28 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- PHONE NUMBER -->
+                        <!-- =================================================
+                             PHONE
+                        ================================================== -->
 
                         <td>
 
                             {% if u.phone_number %}
 
                                 <span>
+
                                     <i class="bi bi-telephone me-1"></i>
+
                                     {{ u.phone_number }}
+
                                 </span>
 
                             {% else %}
 
                                 <span class="text-muted">
+
                                     -
+
                                 </span>
 
                             {% endif %}
@@ -134,21 +175,28 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- EMAIL ID -->
+                        <!-- =================================================
+                             EMAIL
+                        ================================================== -->
 
                         <td>
 
                             {% if u.email %}
 
                                 <span>
+
                                     <i class="bi bi-envelope me-1"></i>
+
                                     {{ u.email }}
+
                                 </span>
 
                             {% else %}
 
                                 <span class="text-muted">
+
                                     -
+
                                 </span>
 
                             {% endif %}
@@ -156,35 +204,73 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- ROLE -->
+                        <!-- =================================================
+                             ROLE
+                        ================================================== -->
 
                         <td>
 
                             {% if u.role == 'admin' %}
 
                                 <span class="role-badge admin">
+
                                     <i class="bi bi-shield-fill-check"></i>
+
                                     Admin
+
                                 </span>
+
 
                             {% elif u.role == 'supervisor' %}
 
                                 <span class="role-badge supervisor">
+
                                     <i class="bi bi-person-badge"></i>
+
                                     Supervisor
+
                                 </span>
 
-                            {% elif u.role in ['security', 'wm'] %}
+
+                            {% elif u.role == 'security' %}
 
                                 <span class="role-badge security">
+
                                     <i class="bi bi-shield-check"></i>
-                                    {{ u.role|capitalize }}
+
+                                    Security
+
                                 </span>
+
+
+                            {% elif u.role == 'lifelong' %}
+
+                                <span class="role-badge lifelong">
+
+                                    <i class="bi bi-building"></i>
+
+                                    Lifelong
+
+                                </span>
+
+
+                            {% elif u.role == 'wm' %}
+
+                                <span class="role-badge warehouse">
+
+                                    <i class="bi bi-box-seam"></i>
+
+                                    Warehouse Manager
+
+                                </span>
+
 
                             {% else %}
 
                                 <span class="role-badge">
+
                                     {{ u.role }}
+
                                 </span>
 
                             {% endif %}
@@ -192,7 +278,9 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- LOCATION -->
+                        <!-- =================================================
+                             LOCATION
+                        ================================================== -->
 
                         <td>
 
@@ -221,7 +309,9 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- STATUS -->
+                        <!-- =================================================
+                             STATUS
+                        ================================================== -->
 
                         <td>
 
@@ -250,56 +340,539 @@ User Management | VehicleFlow
                         </td>
 
 
-                        <!-- ACTION -->
+                        <!-- =================================================
+                             ACTION
+                        ================================================== -->
 
                         <td>
 
-                            {% if u.username != user %}
+                            <div class="d-flex gap-2 flex-wrap">
 
-                                <a
-                                    href="{{ url_for(
-                                        'toggle_user',
-                                        uid=u.id
-                                    ) }}"
-                                    class="btn btn-sm
-                                    {% if u.is_active %}
-                                        btn-outline-danger
-                                    {% else %}
-                                        btn-outline-success
-                                    {% endif %}"
+
+                                <!-- EDIT -->
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editUserModal{{ u.id }}"
                                 >
 
-                                    {% if u.is_active %}
+                                    <i class="bi bi-pencil-square me-1"></i>
 
-                                        <i class="bi bi-person-x me-1"></i>
+                                    Edit
 
-                                        Disable
+                                </button>
 
-                                    {% else %}
 
-                                        <i class="bi bi-person-check me-1"></i>
+                                <!-- ENABLE / DISABLE -->
 
-                                        Enable
+                                {% if u.username != user %}
 
-                                    {% endif %}
+                                    <a
+                                        href="{{ url_for(
+                                            'toggle_user',
+                                            uid=u.id
+                                        ) }}"
+                                        class="btn btn-sm
+                                        {% if u.is_active %}
+                                            btn-outline-danger
+                                        {% else %}
+                                            btn-outline-success
+                                        {% endif %}"
+                                    >
 
-                                </a>
+                                        {% if u.is_active %}
 
-                            {% else %}
+                                            <i class="bi bi-person-x me-1"></i>
 
-                                <span class="text-muted small">
+                                            Disable
 
-                                    Current User
+                                        {% else %}
 
-                                </span>
+                                            <i class="bi bi-person-check me-1"></i>
 
-                            {% endif %}
+                                            Enable
+
+                                        {% endif %}
+
+                                    </a>
+
+                                {% else %}
+
+                                    <span class="text-muted small align-self-center">
+
+                                        Current User
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
 
                         </td>
 
                     </tr>
 
+
+                    <!-- =====================================================
+                         EDIT USER MODAL
+                    ====================================================== -->
+
+                    <div
+                        class="modal fade"
+                        id="editUserModal{{ u.id }}"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+
+                        <div
+                            class="modal-dialog modal-lg modal-dialog-centered"
+                        >
+
+                            <div class="modal-content">
+
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('admin_users') }}"
+                                >
+
+
+                                    <!-- =================================================
+                                         BACKEND ACTION
+                                    ================================================== -->
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="update_user"
+                                    >
+
+
+                                    <input
+                                        type="hidden"
+                                        name="user_id"
+                                        value="{{ u.id }}"
+                                    >
+
+
+                                    <!-- =================================================
+                                         MODAL HEADER
+                                    ================================================== -->
+
+                                    <div class="modal-header">
+
+                                        <div>
+
+                                            <h5 class="modal-title">
+
+                                                <i class="bi bi-person-gear me-2"></i>
+
+                                                Edit User
+
+                                            </h5>
+
+                                            <small class="text-muted">
+
+                                                Update user access and contact details
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                        ></button>
+
+                                    </div>
+
+
+                                    <!-- =================================================
+                                         MODAL BODY
+                                    ================================================== -->
+
+                                    <div class="modal-body">
+
+                                        <div class="row g-3">
+
+
+                                            <!-- =================================================
+                                                 USERNAME
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+
+                                                    Username
+
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    class="form-control bg-light"
+                                                    value="{{ u.username }}"
+                                                    readonly
+                                                >
+
+                                                <small class="text-muted">
+
+                                                    Username cannot be changed.
+
+                                                </small>
+
+                                            </div>
+
+
+                                            <!-- =================================================
+                                                 PHONE NUMBER
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+
+                                                    Phone Number
+
+                                                </label>
+
+                                                <input
+                                                    type="tel"
+                                                    name="phone_number"
+                                                    class="form-control"
+                                                    value="{{ u.phone_number or '' }}"
+                                                    placeholder="Enter phone number"
+                                                >
+
+                                            </div>
+
+
+                                            <!-- =================================================
+                                                 EMAIL
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+
+                                                    Email ID
+
+                                                </label>
+
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    class="form-control"
+                                                    value="{{ u.email or '' }}"
+                                                    placeholder="Enter email address"
+                                                >
+
+                                            </div>
+
+
+                                            <!-- =================================================
+                                                 ROLE
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label required">
+
+                                                    Role
+
+                                                </label>
+
+
+                                                <select
+                                                    name="role"
+                                                    class="form-select"
+                                                    required
+                                                >
+
+                                                    <option
+                                                        value="admin"
+                                                        {% if u.role == 'admin' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        Admin
+
+                                                    </option>
+
+
+                                                    <option
+                                                        value="supervisor"
+                                                        {% if u.role == 'supervisor' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        Supervisor
+
+                                                    </option>
+
+
+                                                    <option
+                                                        value="security"
+                                                        {% if u.role == 'security' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        Security
+
+                                                    </option>
+
+
+                                                    <option
+                                                        value="lifelong"
+                                                        {% if u.role == 'lifelong' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        Lifelong
+
+                                                    </option>
+
+
+                                                    <option
+                                                        value="wm"
+                                                        {% if u.role == 'wm' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        Warehouse Manager
+
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+
+                                            <!-- =================================================
+                                                 LOCATION
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label required">
+
+                                                    Location
+
+                                                </label>
+
+
+                                                <select
+                                                    name="location"
+                                                    class="form-select"
+                                                    required
+                                                >
+
+                                                    <option
+                                                        value="TTK Kulana"
+                                                        {% if u.location == 'TTK Kulana' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        TTK Kulana
+
+                                                    </option>
+
+
+                                                    <option
+                                                        value="ALL"
+                                                        {% if u.location == 'ALL' %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+
+                                                        All Locations
+
+                                                    </option>
+
+                                                </select>
+
+                                            </div>
+
+
+                                            <!-- =================================================
+                                                 NEW PASSWORD
+                                            ================================================== -->
+
+                                            <div class="col-md-6">
+
+                                                <label class="form-label">
+
+                                                    New Password
+
+                                                </label>
+
+
+                                                <div class="input-group">
+
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        id="editPassword{{ u.id }}"
+                                                        class="form-control"
+                                                        placeholder="Leave blank to keep current password"
+                                                        autocomplete="new-password"
+                                                    >
+
+
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-outline-secondary"
+                                                        onclick="togglePassword(
+                                                            'editPassword{{ u.id }}',
+                                                            this
+                                                        )"
+                                                        title="Show / Hide Password"
+                                                    >
+
+                                                        <i class="bi bi-eye"></i>
+
+                                                    </button>
+
+                                                </div>
+
+
+                                                <small class="text-muted">
+
+                                                    Leave blank to keep the
+                                                    existing password.
+
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- =================================================
+                                             SECURITY INFORMATION
+                                        ================================================== -->
+
+                                        <div class="workflow-alert mt-4">
+
+                                            <i class="bi bi-shield-lock-fill"></i>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    Admin Access
+                                                </strong>
+
+                                                <br>
+
+                                                Phone Number, Email ID, Role,
+                                                Location and Password can be
+                                                updated from this screen.
+
+                                                <br>
+
+                                                Existing password is not
+                                                displayed for security.
+
+                                                <br>
+
+                                                Leave New Password blank to
+                                                keep the current password
+                                                unchanged.
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- =================================================
+                                         MODAL FOOTER
+                                    ================================================== -->
+
+                                    <div class="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-light"
+                                            data-bs-dismiss="modal"
+                                        >
+
+                                            Cancel
+
+                                        </button>
+
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary"
+                                        >
+
+                                            <i class="bi bi-check2-circle me-2"></i>
+
+                                            Update User
+
+                                        </button>
+
+                                    </div>
+
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 {% endfor %}
+
+
+                <!-- =========================================================
+                     NO USERS
+                ========================================================== -->
+
+                {% if not users %}
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="text-center py-5"
+                        >
+
+                            <div class="text-muted">
+
+                                <i class="bi bi-people fs-1 d-block mb-3"></i>
+
+                                <h5>
+                                    No users found
+                                </h5>
+
+                                <p class="mb-0">
+
+                                    Create a new user to get started.
+
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
 
                 </tbody>
 
@@ -320,9 +893,10 @@ User Management | VehicleFlow
     class="modal fade"
     id="createUserModal"
     tabindex="-1"
+    aria-hidden="true"
 >
 
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
 
         <div class="modal-content">
 
@@ -333,7 +907,9 @@ User Management | VehicleFlow
             >
 
 
-                <!-- MODAL HEADER -->
+                <!-- =================================================
+                     MODAL HEADER
+                ================================================== -->
 
                 <div class="modal-header">
 
@@ -365,10 +941,11 @@ User Management | VehicleFlow
                 </div>
 
 
-                <!-- MODAL BODY -->
+                <!-- =================================================
+                     MODAL BODY
+                ================================================== -->
 
                 <div class="modal-body">
-
 
                     <div class="row g-3">
 
@@ -388,6 +965,7 @@ User Management | VehicleFlow
                                 name="username"
                                 class="form-control"
                                 placeholder="Enter username"
+                                autocomplete="username"
                                 required
                             >
 
@@ -404,13 +982,35 @@ User Management | VehicleFlow
 
                             </label>
 
-                            <input
-                                type="password"
-                                name="password"
-                                class="form-control"
-                                placeholder="Enter password"
-                                required
-                            >
+
+                            <div class="input-group">
+
+                                <input
+                                    type="password"
+                                    name="password"
+                                    id="createPassword"
+                                    class="form-control"
+                                    placeholder="Enter password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    onclick="togglePassword(
+                                        'createPassword',
+                                        this
+                                    )"
+                                    title="Show / Hide Password"
+                                >
+
+                                    <i class="bi bi-eye"></i>
+
+                                </button>
+
+                            </div>
 
                         </div>
 
@@ -435,7 +1035,7 @@ User Management | VehicleFlow
                         </div>
 
 
-                        <!-- EMAIL ID -->
+                        <!-- EMAIL -->
 
                         <div class="col-md-6">
 
@@ -473,27 +1073,44 @@ User Management | VehicleFlow
                             >
 
                                 <option value="">
+
                                     Select Role
+
                                 </option>
 
 
                                 <option value="admin">
+
                                     Admin
+
                                 </option>
 
 
                                 <option value="supervisor">
+
                                     Supervisor
+
                                 </option>
 
 
                                 <option value="security">
+
                                     Security
+
+                                </option>
+
+
+                                <option value="lifelong">
+
+                                    Lifelong
+
                                 </option>
 
 
                                 <option value="wm">
+
                                     Warehouse Manager
+
                                 </option>
 
                             </select>
@@ -519,23 +1136,35 @@ User Management | VehicleFlow
                             >
 
                                 <option value="">
+
                                     Select Location
+
                                 </option>
 
 
                                 <option value="TTK Kulana">
+
                                     TTK Kulana
+
+                                </option>
+
+
+                                <option value="ALL">
+
+                                    All Locations
+
                                 </option>
 
                             </select>
 
                         </div>
 
-
                     </div>
 
 
-                    <!-- ACCESS INFORMATION -->
+                    <!-- =================================================
+                         ACCESS INFORMATION
+                    ================================================== -->
 
                     <div class="workflow-alert mt-4">
 
@@ -544,10 +1173,18 @@ User Management | VehicleFlow
 
                         <div>
 
+                            <strong>
+                                Access Information
+                            </strong>
+
+                            <br>
+
                             User access is controlled by role and location.
 
                             Non-admin users can only access vehicles from
                             their assigned location.
+
+                            <br>
 
                             Phone Number and Email ID are available for
                             Admin user management.
@@ -556,14 +1193,14 @@ User Management | VehicleFlow
 
                     </div>
 
-
                 </div>
 
 
-                <!-- MODAL FOOTER -->
+                <!-- =================================================
+                     MODAL FOOTER
+                ================================================== -->
 
                 <div class="modal-footer">
-
 
                     <button
                         type="button"
@@ -587,12 +1224,10 @@ User Management | VehicleFlow
 
                     </button>
 
-
                 </div>
 
 
             </form>
-
 
         </div>
 
@@ -600,5 +1235,530 @@ User Management | VehicleFlow
 
 </div>
 
+
+<!-- =========================================================
+     PASSWORD SHOW / HIDE
+========================================================== -->
+
+<script>
+
+function togglePassword(inputId, button) {
+
+    const input = document.getElementById(inputId);
+
+    if (!input) {
+        return;
+    }
+
+    const icon = button.querySelector("i");
+
+    if (input.type === "password") {
+
+        input.type = "text";
+
+        if (icon) {
+
+            icon.classList.remove("bi-eye");
+
+            icon.classList.add("bi-eye-slash");
+
+        }
+
+    } else {
+
+        input.type = "password";
+
+        if (icon) {
+
+            icon.classList.remove("bi-eye-slash");
+
+            icon.classList.add("bi-eye");
+
+        }
+
+    }
+
+}
+
+</script>
+
+
+<!-- =========================================================
+     UI CSS
+========================================================== -->
+
+<style>
+
+    .dashboard-card {
+
+        border-radius: 14px;
+
+        background: #ffffff;
+
+        box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.06);
+
+        overflow: hidden;
+
+    }
+
+
+    .card-heading {
+
+        padding: 20px 22px;
+
+        border-bottom:
+            1px solid #eef1f5;
+
+    }
+
+
+    .card-heading h5 {
+
+        margin-bottom: 4px;
+
+        font-weight: 700;
+
+    }
+
+
+    .card-heading small {
+
+        color: #7b8494;
+
+    }
+
+
+    .vehicle-table {
+
+        margin-bottom: 0;
+
+    }
+
+
+    .vehicle-table thead th {
+
+        background: #f7f8fa;
+
+        color: #4b5563;
+
+        font-size: 0.78rem;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.4px;
+
+        white-space: nowrap;
+
+        padding: 14px 16px;
+
+        border-bottom:
+            1px solid #e9edf2;
+
+    }
+
+
+    .vehicle-table tbody td {
+
+        padding: 14px 16px;
+
+        white-space: nowrap;
+
+        font-size: 0.88rem;
+
+        border-bottom:
+            1px solid #f0f2f5;
+
+    }
+
+
+    .vehicle-table tbody tr:hover {
+
+        background: #fafbfc;
+
+    }
+
+
+    .user-table-info {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+    }
+
+
+    .user-avatar {
+
+        width: 34px;
+
+        height: 34px;
+
+        border-radius: 50%;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        background: #eef4ff;
+
+        color: #0d6efd;
+
+        font-weight: 700;
+
+        font-size: 0.85rem;
+
+    }
+
+
+    .role-badge {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 10px;
+
+        border-radius: 7px;
+
+        background: #eef1f5;
+
+        color: #4b5563;
+
+        font-size: 0.78rem;
+
+        font-weight: 600;
+
+    }
+
+
+    .role-badge.admin {
+
+        background: #fff0f0;
+
+        color: #dc3545;
+
+    }
+
+
+    .role-badge.supervisor {
+
+        background: #eef4ff;
+
+        color: #0d6efd;
+
+    }
+
+
+    .role-badge.security {
+
+        background: #edf9f1;
+
+        color: #198754;
+
+    }
+
+
+    .role-badge.lifelong {
+
+        background: #fff7e6;
+
+        color: #b7791f;
+
+    }
+
+
+    .role-badge.warehouse {
+
+        background: #f3edff;
+
+        color: #6f42c1;
+
+    }
+
+
+    .location-badge {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 10px;
+
+        border-radius: 7px;
+
+        background: #f3f4f6;
+
+        color: #4b5563;
+
+        font-size: 0.78rem;
+
+        font-weight: 600;
+
+    }
+
+
+    .location-badge.all {
+
+        background: #eef4ff;
+
+        color: #0d6efd;
+
+    }
+
+
+    .status-badge {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 6px 10px;
+
+        border-radius: 7px;
+
+        font-size: 0.78rem;
+
+        font-weight: 600;
+
+    }
+
+
+    .status-in {
+
+        background: #edf9f1;
+
+        color: #198754;
+
+    }
+
+
+    .status-disabled {
+
+        background: #fff1f2;
+
+        color: #dc3545;
+
+    }
+
+
+    .status-dot {
+
+        width: 7px;
+
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+
+        display: inline-block;
+
+    }
+
+
+    .btn {
+
+        border-radius: 7px;
+
+    }
+
+
+    .form-control,
+    .form-select {
+
+        border-radius: 7px;
+
+        min-height: 42px;
+
+    }
+
+
+    .form-control:focus,
+    .form-select:focus {
+
+        box-shadow:
+            0 0 0 0.15rem
+            rgba(13, 110, 253, 0.12);
+
+    }
+
+
+    .modal-content {
+
+        border: 0;
+
+        border-radius: 14px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 15px 50px
+            rgba(0, 0, 0, 0.15);
+
+    }
+
+
+    .modal-header {
+
+        padding: 18px 22px;
+
+        border-bottom:
+            1px solid #eef1f5;
+
+    }
+
+
+    .modal-body {
+
+        padding: 22px;
+
+    }
+
+
+    .modal-footer {
+
+        padding: 16px 22px;
+
+        border-top:
+            1px solid #eef1f5;
+
+    }
+
+
+    .workflow-alert {
+
+        display: flex;
+
+        gap: 12px;
+
+        padding: 14px 16px;
+
+        border-radius: 9px;
+
+        background: #f4f8ff;
+
+        color: #495057;
+
+        border:
+            1px solid #dce9ff;
+
+        font-size: 0.86rem;
+
+        line-height: 1.55;
+
+    }
+
+
+    .workflow-alert > i {
+
+        color: #0d6efd;
+
+        font-size: 1.15rem;
+
+        margin-top: 2px;
+
+    }
+
+
+    .required::after {
+
+        content: " *";
+
+        color: #dc3545;
+
+    }
+
+
+    .page-eyebrow {
+
+        font-size: 0.72rem;
+
+        font-weight: 700;
+
+        letter-spacing: 1.2px;
+
+        color: #6c757d;
+
+        margin-bottom: 5px;
+
+    }
+
+
+    .page-title {
+
+        font-size: 1.8rem;
+
+        font-weight: 700;
+
+        margin-bottom: 4px;
+
+    }
+
+
+    .page-description {
+
+        color: #6c757d;
+
+        margin-bottom: 0;
+
+    }
+
+
+    /* =========================================================
+       PASSWORD EYE BUTTON
+    ========================================================= */
+
+    .input-group .btn {
+
+        min-width: 44px;
+
+    }
+
+
+    .input-group .btn:focus {
+
+        box-shadow:
+            0 0 0 0.15rem
+            rgba(108, 117, 125, 0.15);
+
+    }
+
+
+    @media (max-width: 768px) {
+
+        .vehicle-table tbody td {
+
+            font-size: 0.8rem;
+
+        }
+
+        .vehicle-table thead th {
+
+            font-size: 0.7rem;
+
+        }
+
+        .page-title {
+
+            font-size: 1.5rem;
+
+        }
+
+    }
+
+</style>
 
 {% endblock %}
