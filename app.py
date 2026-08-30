@@ -1094,7 +1094,142 @@ def admin_users():
             url_for("index")
         )
 
+    # ============================================================
+    # POST
+    # CREATE / UPDATE USER
+    # ============================================================
+
     if request.method == "POST":
+
+        action = request.form.get(
+            "action",
+            ""
+        ).strip()
+
+        # ========================================================
+        # UPDATE EXISTING USER
+        # ========================================================
+
+        if action == "update_user":
+
+            user_id = request.form.get(
+                "user_id",
+                "",
+                type=int
+            )
+
+            user = db.session.get(
+                User,
+                user_id
+            )
+
+            if user is None:
+
+                flash(
+                    "User not found.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("admin_users")
+                )
+
+            role = request.form.get(
+                "role",
+                ""
+            ).strip().lower()
+
+            location = request.form.get(
+                "location",
+                ""
+            ).strip()
+
+            phone_number = request.form.get(
+                "phone_number",
+                ""
+            ).strip()
+
+            email = request.form.get(
+                "email",
+                ""
+            ).strip()
+
+            password = request.form.get(
+                "password",
+                ""
+            )
+
+            allowed_roles = {
+                "admin",
+                "supervisor",
+                "security",
+                "lifelong",
+                "wm"
+            }
+
+            # ----------------------------------------------------
+            # VALIDATION
+            # ----------------------------------------------------
+
+            if not role or not location:
+
+                flash(
+                    "Role and location are required.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("admin_users")
+                )
+
+            if role not in allowed_roles:
+
+                flash(
+                    "Invalid role.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("admin_users")
+                )
+
+            # ----------------------------------------------------
+            # UPDATE USER DETAILS
+            # ----------------------------------------------------
+
+            user.role = role
+
+            user.location = location
+
+            user.phone_number = phone_number
+
+            user.email = email
+
+            # ----------------------------------------------------
+            # PASSWORD
+            # Only change password if admin entered a new one
+            # ----------------------------------------------------
+
+            if password.strip():
+
+                user.set_password(
+                    password
+                )
+
+            db.session.commit()
+
+            flash(
+                "User updated successfully.",
+                "success"
+            )
+
+            return redirect(
+                url_for("admin_users")
+            )
+
+        # ========================================================
+        # CREATE NEW USER
+        # ========================================================
 
         username = request.form.get(
             "username",
@@ -1199,6 +1334,10 @@ def admin_users():
         return redirect(
             url_for("admin_users")
         )
+
+    # ============================================================
+    # GET USERS
+    # ============================================================
 
     users = User.query.order_by(
         User.id.asc()
@@ -1382,7 +1521,6 @@ def index():
         )
 
     if load_unload:
-
         vehicles_query = vehicles_query.filter(
             Vehicle.load_unload.ilike(
                 f"%{load_unload}%"
