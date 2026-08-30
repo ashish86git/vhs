@@ -9,7 +9,9 @@ from flask import (
     flash,
     jsonify,
 )
+
 from datetime import datetime, timedelta
+
 import plotly.graph_objects as go
 import pytz
 import io
@@ -19,6 +21,7 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text, inspect
 
 
 # ============================================================
@@ -33,7 +36,7 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get(
     "SECRET_KEY",
-    "supersecret"
+    "change-this-secret-key"
 )
 
 
@@ -66,18 +69,14 @@ DB_PASSWORD = os.environ.get(
     "p86edb19173b56140c6f59850879a1341955fa911bfcaf2f17f8ecf207bc42dad"
 )
 
-
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-
 # ============================================================
-# HEROKU DATABASE URL FIX
+# HEROKU / POSTGRES DATABASE URL
 # ============================================================
 
 if DATABASE_URL:
 
-    # Some older Heroku PostgreSQL URLs can use postgres://
-    # SQLAlchemy expects postgresql://
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace(
             "postgres://",
@@ -103,14 +102,12 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 280,
 }
 
-
 db = SQLAlchemy(app)
 
 
 # ============================================================
-# DATABASE MODELS
+# USER MODEL
 # ============================================================
-
 
 class User(db.Model):
 
@@ -145,6 +142,14 @@ class User(db.Model):
         index=True
     )
 
+    phone_number = db.Column(
+        db.String(50)
+    )
+
+    email = db.Column(
+        db.String(150)
+    )
+
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -177,7 +182,6 @@ class User(db.Model):
 # VEHICLE MODEL
 # ============================================================
 
-
 class Vehicle(db.Model):
 
     __tablename__ = "vehicles"
@@ -192,7 +196,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # BASIC VEHICLE INFORMATION
+    # BASIC INFORMATION
     # ========================================================
 
     reg_no = db.Column(
@@ -214,6 +218,10 @@ class Vehicle(db.Model):
         db.String(150)
     )
 
+    # ========================================================
+    # GENERAL / UNLOAD LR
+    # ========================================================
+
     lr_number = db.Column(
         db.String(150)
     )
@@ -231,7 +239,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # VEHICLE STATUS
+    # STATUS
     # ========================================================
 
     status = db.Column(
@@ -251,7 +259,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # DRIVER INFORMATION
+    # DRIVER
     # ========================================================
 
     driver_name = db.Column(
@@ -263,16 +271,12 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # INVOICE INFORMATION
+    # GENERAL / UNLOAD INVOICE
     # ========================================================
 
     invoice_number = db.Column(
         db.String(150)
     )
-
-    # ========================================================
-    # SECURITY ENTERED VALUES
-    # ========================================================
 
     invoice_qty = db.Column(
         db.String(100)
@@ -283,7 +287,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # SUPERVISOR VERIFIED / ACTUAL VALUES
+    # UNLOAD SUPERVISOR VERIFIED VALUES
     # ========================================================
 
     supervisor_invoice_qty = db.Column(
@@ -295,7 +299,19 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # DOCK INFORMATION
+    # UNLOAD DAMAGED VALUES
+    # ========================================================
+
+    supervisor_damaged_qty = db.Column(
+        db.String(100)
+    )
+
+    supervisor_damaged_boxes = db.Column(
+        db.String(100)
+    )
+
+    # ========================================================
+    # DOCK
     # ========================================================
 
     dock_number = db.Column(
@@ -303,18 +319,27 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # INBOUND WORKFLOW
+    # FLOW
     # ========================================================
 
     flow_type = db.Column(
         db.String(30),
         default="INBOUND",
-        nullable=False
+        nullable=False,
+        index=True
     )
+
+    # ========================================================
+    # SECURITY CHECK-IN
+    # ========================================================
 
     security_checkin_by = db.Column(
         db.String(100)
     )
+
+    # ========================================================
+    # SUPERVISOR UNLOAD
+    # ========================================================
 
     supervisor_unload_by = db.Column(
         db.String(100)
@@ -329,7 +354,63 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # OUTBOUND WORKFLOW
+    # SUPERVISOR LOAD
+    #
+    # IMPORTANT:
+    # LOAD vehicle ke liye ye fields Supervisor fill karega.
+    # Security Gate Check-In par ye blank rahenge.
+    # ========================================================
+
+    load_lr_number = db.Column(
+        db.String(150)
+    )
+
+    load_invoice_number = db.Column(
+        db.String(150)
+    )
+
+    load_invoice_qty = db.Column(
+        db.String(100)
+    )
+
+    load_number_of_boxes = db.Column(
+        db.String(100)
+    )
+
+    actual_qty = db.Column(
+        db.String(100)
+    )
+
+    actual_boxes = db.Column(
+        db.String(100)
+    )
+
+    supervisor_load_by = db.Column(
+        db.String(100)
+    )
+
+    load_completed_time = db.Column(
+        db.String(30)
+    )
+
+    load_remarks = db.Column(
+        db.Text
+    )
+
+    # ========================================================
+    # SECURITY CHECKOUT VERIFICATION FOR LOAD
+    # ========================================================
+
+    security_checkout_invoice_qty = db.Column(
+        db.String(100)
+    )
+
+    security_checkout_number_of_boxes = db.Column(
+        db.String(100)
+    )
+
+    # ========================================================
+    # DIRECT OUTBOUND WORKFLOW
     # ========================================================
 
     outbound_supervisor_by = db.Column(
@@ -345,7 +426,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # CHECK-OUT SECURITY
+    # CHECKOUT SECURITY
     # ========================================================
 
     checkout_by = db.Column(
@@ -353,7 +434,7 @@ class Vehicle(db.Model):
     )
 
     # ========================================================
-    # LOCATION ISOLATION
+    # LOCATION
     # ========================================================
 
     location = db.Column(
@@ -364,9 +445,148 @@ class Vehicle(db.Model):
 
 
 # ============================================================
-# DATABASE INITIALIZATION
+# DATABASE SCHEMA PATCH
 # ============================================================
 
+def patch_database_schema():
+
+    try:
+
+        with app.app_context():
+
+            inspector = inspect(db.engine)
+
+            # =================================================
+            # USERS
+            # =================================================
+
+            if inspector.has_table("users"):
+
+                user_columns = {
+                    column["name"]
+                    for column in inspector.get_columns("users")
+                }
+
+                user_missing_columns = {
+
+                    "phone_number":
+                        "VARCHAR(50)",
+
+                    "email":
+                        "VARCHAR(150)",
+                }
+
+                for column_name, column_type in user_missing_columns.items():
+
+                    if column_name not in user_columns:
+
+                        db.session.execute(
+                            text(
+                                f"""
+                                ALTER TABLE users
+                                ADD COLUMN IF NOT EXISTS
+                                {column_name}
+                                {column_type}
+                                """
+                            )
+                        )
+
+                        logging.info(
+                            "Added users.%s",
+                            column_name
+                        )
+
+            # =================================================
+            # VEHICLES
+            # =================================================
+
+            if inspector.has_table("vehicles"):
+
+                vehicle_columns = {
+                    column["name"]
+                    for column in inspector.get_columns("vehicles")
+                }
+
+                vehicle_missing_columns = {
+
+                    "supervisor_damaged_qty":
+                        "VARCHAR(100)",
+
+                    "supervisor_damaged_boxes":
+                        "VARCHAR(100)",
+
+                    "load_lr_number":
+                        "VARCHAR(150)",
+
+                    "load_invoice_number":
+                        "VARCHAR(150)",
+
+                    "load_invoice_qty":
+                        "VARCHAR(100)",
+
+                    "load_number_of_boxes":
+                        "VARCHAR(100)",
+
+                    "actual_qty":
+                        "VARCHAR(100)",
+
+                    "actual_boxes":
+                        "VARCHAR(100)",
+
+                    "supervisor_load_by":
+                        "VARCHAR(100)",
+
+                    "load_completed_time":
+                        "VARCHAR(30)",
+
+                    "load_remarks":
+                        "TEXT",
+
+                    "security_checkout_invoice_qty":
+                        "VARCHAR(100)",
+
+                    "security_checkout_number_of_boxes":
+                        "VARCHAR(100)",
+                }
+
+                for column_name, column_type in vehicle_missing_columns.items():
+
+                    if column_name not in vehicle_columns:
+
+                        db.session.execute(
+                            text(
+                                f"""
+                                ALTER TABLE vehicles
+                                ADD COLUMN IF NOT EXISTS
+                                {column_name}
+                                {column_type}
+                                """
+                            )
+                        )
+
+                        logging.info(
+                            "Added vehicles.%s",
+                            column_name
+                        )
+
+            db.session.commit()
+
+            logging.info(
+                "Database schema patch completed."
+            )
+
+    except Exception:
+
+        db.session.rollback()
+
+        logging.exception(
+            "Database schema patch failed."
+        )
+
+
+# ============================================================
+# DATABASE INITIALIZATION
+# ============================================================
 
 def init_database():
 
@@ -375,6 +595,8 @@ def init_database():
         with app.app_context():
 
             db.create_all()
+
+            patch_database_schema()
 
             admin = User.query.filter_by(
                 username="admin"
@@ -386,24 +608,28 @@ def init_database():
                     username="admin",
                     role="admin",
                     location="ALL",
-                    is_active=True,
+                    is_active=True
                 )
 
-                admin.set_password("admin123")
+                admin.set_password(
+                    "admin123"
+                )
 
                 db.session.add(admin)
 
                 db.session.commit()
 
+                logging.warning(
+                    "Default admin created. "
+                    "Please change the password immediately."
+                )
+
             logging.info(
-                "Database tables initialized successfully."
+                "Database initialized."
             )
 
     except Exception:
 
-        # IMPORTANT:
-        # Do not crash Gunicorn during application import.
-        # Database errors will be logged and handled separately.
         logging.exception(
             "Database initialization failed."
         )
@@ -412,7 +638,6 @@ def init_database():
 # ============================================================
 # HELPERS
 # ============================================================
-
 
 def current_time():
 
@@ -433,9 +658,23 @@ def current_location():
     return session.get("location")
 
 
+def current_user():
+
+    return session.get("user")
+
+
+def require_login():
+
+    return "user" in session
+
+
+def is_admin():
+
+    return current_role() == "admin"
+
+
 def is_security():
 
-    # lifelong retained for backward compatibility
     return current_role() in (
         "security",
         "lifelong"
@@ -447,52 +686,35 @@ def is_supervisor():
     return current_role() == "supervisor"
 
 
-def is_admin():
-
-    return current_role() == "admin"
-
-
-def require_login():
-
-    return "user" in session
-
-
 # ============================================================
-# ACCESS CONTROL
+# LOCATION ACCESS
 # ============================================================
-
 
 def can_access_vehicle(vehicle):
 
     if vehicle is None:
+
         return False
 
     if is_admin():
+
         return True
 
+    user_location = current_location()
+
+    if not user_location:
+
+        return False
+
+    if not vehicle.location:
+
+        return False
+
     return (
-        current_location()
-        and vehicle.location
-        and vehicle.location.strip().lower()
-        == current_location().strip().lower()
+        vehicle.location.strip().lower()
+        ==
+        user_location.strip().lower()
     )
-
-
-def get_accessible_vehicles():
-
-    if is_admin():
-
-        return Vehicle.query.all()
-
-    location = current_location()
-
-    if not location:
-
-        return []
-
-    return Vehicle.query.filter(
-        Vehicle.location.ilike(location)
-    ).all()
 
 
 def get_vehicle_for_current_user(vid):
@@ -503,22 +725,45 @@ def get_vehicle_for_current_user(vid):
     )
 
     if vehicle is None:
+
         return None
 
     if not can_access_vehicle(vehicle):
+
         return None
 
     return vehicle
 
 
 # ============================================================
-# SUMMARY
+# DOCK VALIDATION
 # ============================================================
 
+def validate_dock(dock_number):
+
+    if not dock_number:
+
+        return True
+
+    try:
+
+        dock = int(dock_number)
+
+        return 1 <= dock <= 16
+
+    except (ValueError, TypeError):
+
+        return False
+
+
+# ============================================================
+# SUMMARY
+# ============================================================
 
 def get_summary(vehicles):
 
     total_in = 0
+
     total_out = 0
 
     total_status = len(
@@ -527,46 +772,56 @@ def get_summary(vehicles):
 
     over_48hrs = 0
 
-    for v in vehicles:
+    now = datetime.now(
+        IST
+    ).replace(
+        tzinfo=None
+    )
 
-        if v.status == "IN":
+    for vehicle in vehicles:
+
+        if vehicle.status == "IN":
 
             total_in += 1
 
-        elif v.status == "OUT":
+        elif vehicle.status == "OUT":
 
             total_out += 1
 
-        if v.check_in and v.check_out:
+        if vehicle.check_in:
 
             try:
 
                 check_in_time = datetime.strptime(
-                    v.check_in,
+                    vehicle.check_in,
                     "%Y-%m-%d %H:%M:%S"
                 )
 
-                check_out_time = datetime.strptime(
-                    v.check_out,
-                    "%Y-%m-%d %H:%M:%S"
-                )
+                if vehicle.check_out:
+
+                    check_out_time = datetime.strptime(
+                        vehicle.check_out,
+                        "%Y-%m-%d %H:%M:%S"
+                    )
+
+                else:
+
+                    check_out_time = now
 
                 diff = (
                     check_out_time
                     - check_in_time
                 )
 
-                if diff > timedelta(
-                    hours=48
-                ):
+                if diff > timedelta(hours=48):
 
                     over_48hrs += 1
 
             except ValueError:
 
-                logging.error(
-                    "Error parsing date for vehicle ID: %s",
-                    v.id
+                logging.warning(
+                    "Invalid check-in date for vehicle %s",
+                    vehicle.id
                 )
 
     return (
@@ -581,42 +836,35 @@ def get_summary(vehicles):
 # CHARTS
 # ============================================================
 
-
 def generate_charts(
     daily_in,
     daily_out
 ):
 
     all_days = sorted(
-        list(
-            set(
-                daily_in.keys()
-            )
-            |
-            set(
-                daily_out.keys()
-            )
-        )
+        set(daily_in.keys())
+        |
+        set(daily_out.keys())
     )
 
     in_counts = [
         daily_in.get(
-            d,
+            day,
             0
         )
-        for d in all_days
+        for day in all_days
     ]
 
     out_counts = [
         daily_out.get(
-            d,
+            day,
             0
         )
-        for d in all_days
+        for day in all_days
     ]
 
     # ========================================================
-    # CHECK-IN CHART
+    # CHECK-IN
     # ========================================================
 
     fig_in = go.Figure()
@@ -637,7 +885,7 @@ def generate_charts(
                 "Date: %{x}<br>"
                 "Check-Ins: %{y}"
                 "<extra></extra>"
-            ),
+            )
         )
     )
 
@@ -651,7 +899,7 @@ def generate_charts(
             r=40,
             t=40,
             b=80
-        ),
+        )
     )
 
     chart_in = fig_in.to_html(
@@ -659,7 +907,7 @@ def generate_charts(
     )
 
     # ========================================================
-    # CHECK-OUT CHART
+    # CHECK-OUT
     # ========================================================
 
     fig_out = go.Figure()
@@ -680,7 +928,7 @@ def generate_charts(
                 "Date: %{x}<br>"
                 "Check-Outs: %{y}"
                 "<extra></extra>"
-            ),
+            )
         )
     )
 
@@ -694,7 +942,7 @@ def generate_charts(
             r=40,
             t=40,
             b=80
-        ),
+        )
     )
 
     chart_out = fig_out.to_html(
@@ -711,11 +959,10 @@ def generate_charts(
 # HOME
 # ============================================================
 
-
 @app.route("/")
 def home():
 
-    if "user" in session:
+    if require_login():
 
         return redirect(
             url_for("index")
@@ -729,7 +976,6 @@ def home():
 # ============================================================
 # LOGIN
 # ============================================================
-
 
 @app.route(
     "/login",
@@ -756,23 +1002,16 @@ def login():
                 is_active=True
             ).first()
 
-            if user and user.check_password(
-                password
-            ):
+            if user and user.check_password(password):
 
-                session["user"] = (
-                    user.username
-                )
+                session["user"] = user.username
 
-                session["role"] = (
-                    user.role
-                )
+                session["role"] = user.role
 
-                session["location"] = (
-                    user.location
-                )
+                session["location"] = user.location
 
-                # Upgrade old plain-text passwords
+                # Upgrade old plain-text password
+
                 if not user.password.startswith(
                     (
                         "pbkdf2:",
@@ -818,24 +1057,10 @@ def login():
 # LOGOUT
 # ============================================================
 
-
 @app.route("/logout")
 def logout():
 
-    session.pop(
-        "user",
-        None
-    )
-
-    session.pop(
-        "role",
-        None
-    )
-
-    session.pop(
-        "location",
-        None
-    )
+    session.clear()
 
     return redirect(
         url_for("login")
@@ -843,9 +1068,8 @@ def logout():
 
 
 # ============================================================
-# ADMIN USER MANAGEMENT
+# ADMIN USERS
 # ============================================================
-
 
 @app.route(
     "/admin/users",
@@ -862,7 +1086,7 @@ def admin_users():
     if not is_admin():
 
         flash(
-            "Unauthorized! Only Admin can manage users.",
+            "Only Admin can manage users.",
             "warning"
         )
 
@@ -892,14 +1116,30 @@ def admin_users():
             ""
         ).strip()
 
+        phone_number = request.form.get(
+            "phone_number",
+            ""
+        ).strip()
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip()
+
         allowed_roles = {
             "admin",
             "supervisor",
             "security",
-            "lifelong"
+            "lifelong",
+            "wm"
         }
 
-        if not username or not password or not role or not location:
+        if not all([
+            username,
+            password,
+            role,
+            location
+        ]):
 
             flash(
                 "Username, password, role and location are required.",
@@ -913,7 +1153,7 @@ def admin_users():
         if role not in allowed_roles:
 
             flash(
-                "Invalid role selected.",
+                "Invalid role.",
                 "danger"
             )
 
@@ -938,16 +1178,16 @@ def admin_users():
             username=username,
             role=role,
             location=location,
-            is_active=True,
+            phone_number=phone_number,
+            email=email,
+            is_active=True
         )
 
         user.set_password(
             password
         )
 
-        db.session.add(
-            user
-        )
+        db.session.add(user)
 
         db.session.commit()
 
@@ -967,16 +1207,15 @@ def admin_users():
     return render_template(
         "admin_users.html",
         users=users,
-        user=session.get("user"),
-        role=session.get("role"),
-        location=session.get("location"),
+        user=current_user(),
+        role=current_role(),
+        location=current_location()
     )
 
 
 # ============================================================
 # TOGGLE USER
 # ============================================================
-
 
 @app.route(
     "/admin/users/toggle/<int:uid>"
@@ -992,7 +1231,7 @@ def toggle_user(uid):
     if not is_admin():
 
         flash(
-            "Unauthorized! Only Admin can manage users.",
+            "Only Admin can manage users.",
             "warning"
         )
 
@@ -1016,12 +1255,10 @@ def toggle_user(uid):
             url_for("admin_users")
         )
 
-    if user.username == session.get(
-        "user"
-    ):
+    if user.username == current_user():
 
         flash(
-            "Current admin user cannot be disabled.",
+            "Current admin cannot be disabled.",
             "warning"
         )
 
@@ -1044,9 +1281,8 @@ def toggle_user(uid):
 
 
 # ============================================================
-# MAIN INDEX / DASHBOARD
+# MAIN DASHBOARD
 # ============================================================
-
 
 @app.route("/index")
 def index():
@@ -1060,27 +1296,27 @@ def index():
     reg_no = request.args.get(
         "reg",
         ""
-    ).strip().lower()
+    ).strip()
 
     transporter = request.args.get(
         "transporter",
         ""
-    ).strip().lower()
+    ).strip()
 
     supplier = request.args.get(
         "supplier",
         ""
-    ).strip().lower()
+    ).strip()
 
     load_unload = request.args.get(
         "load_unload",
         ""
-    ).strip().lower()
+    ).strip()
 
     status = request.args.get(
         "status",
         ""
-    ).strip().lower()
+    ).strip()
 
     from_date_str = request.args.get(
         "from_date",
@@ -1099,13 +1335,12 @@ def index():
     )
 
     if page < 1:
-
         page = 1
 
     ROWS_PER_PAGE = 20
 
     # ========================================================
-    # LOCATION FILTER
+    # BASE QUERY
     # ========================================================
 
     if is_admin():
@@ -1117,10 +1352,6 @@ def index():
         vehicles_query = Vehicle.query.filter_by(
             location=current_location()
         )
-
-    vehicles_query = vehicles_query.order_by(
-        Vehicle.id.desc()
-    )
 
     # ========================================================
     # FILTERS
@@ -1180,8 +1411,8 @@ def index():
             )
 
             vehicles_query = vehicles_query.filter(
-                Vehicle.check_in
-                >= start_dt.strftime(
+                Vehicle.check_in >=
+                start_dt.strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
             )
@@ -1202,12 +1433,13 @@ def index():
                     to_date_str,
                     "%Y-%m-%d"
                 )
-                + timedelta(days=1)
+                +
+                timedelta(days=1)
             )
 
             vehicles_query = vehicles_query.filter(
-                Vehicle.check_in
-                < end_dt.strftime(
+                Vehicle.check_in <
+                end_dt.strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
             )
@@ -1218,6 +1450,14 @@ def index():
                 "Invalid To Date.",
                 "warning"
             )
+
+    # ========================================================
+    # ORDER
+    # ========================================================
+
+    vehicles_query = vehicles_query.order_by(
+        Vehicle.id.desc()
+    )
 
     # ========================================================
     # PAGINATION
@@ -1233,7 +1473,7 @@ def index():
         - 1
     ) // ROWS_PER_PAGE
 
-    if total_pages == 0:
+    if total_pages < 1:
 
         total_pages = 1
 
@@ -1249,7 +1489,7 @@ def index():
     ).all()
 
     # ========================================================
-    # COMPLETE FILTERED DATASET
+    # ALL FILTERED DATA
     # ========================================================
 
     all_filtered_vehicles = (
@@ -1257,35 +1497,38 @@ def index():
     )
 
     daily_in = {}
+
     daily_out = {}
 
-    for v in all_filtered_vehicles:
+    for vehicle in all_filtered_vehicles:
 
-        if v.check_in:
+        if not vehicle.check_in:
 
-            date_str = v.check_in.split(
-                " "
-            )[0]
+            continue
 
-            if v.status == "IN":
+        date_str = vehicle.check_in.split(
+            " "
+        )[0]
 
-                daily_in[date_str] = (
-                    daily_in.get(
-                        date_str,
-                        0
-                    )
-                    + 1
+        if vehicle.status == "IN":
+
+            daily_in[date_str] = (
+                daily_in.get(
+                    date_str,
+                    0
                 )
+                + 1
+            )
 
-            elif v.status == "OUT":
+        elif vehicle.status == "OUT":
 
-                daily_out[date_str] = (
-                    daily_out.get(
-                        date_str,
-                        0
-                    )
-                    + 1
+            daily_out[date_str] = (
+                daily_out.get(
+                    date_str,
+                    0
                 )
+                + 1
+            )
 
     chart_in, chart_out = generate_charts(
         daily_in,
@@ -1314,20 +1557,18 @@ def index():
         total_pages=total_pages,
         from_date=from_date_str,
         to_date=to_date_str,
-        user=session["user"],
-        role=session["role"],
-        location=session.get("location"),
+        user=current_user(),
+        role=current_role(),
+        location=current_location(),
         current_year=datetime.now(
             IST
-        ).year,
+        ).year
     )
 
 
 # ============================================================
-# INBOUND CHECK-IN
-# SECURITY ONLY
+# SECURITY GATE CHECK-IN
 # ============================================================
-
 
 @app.route(
     "/checkin",
@@ -1344,7 +1585,7 @@ def checkin():
     if not is_security():
 
         flash(
-            "Unauthorized! Only Security can create an Inbound Check-In.",
+            "Only Security can create Gate Check-In.",
             "warning"
         )
 
@@ -1353,6 +1594,10 @@ def checkin():
         )
 
     try:
+
+        # ====================================================
+        # BASIC DETAILS
+        # ====================================================
 
         reg_no = request.form.get(
             "reg_no",
@@ -1371,11 +1616,6 @@ def checkin():
 
         supplier = request.form.get(
             "supplier",
-            ""
-        ).strip()
-
-        lr_number = request.form.get(
-            "lr_number",
             ""
         ).strip()
 
@@ -1404,6 +1644,15 @@ def checkin():
             ""
         ).strip()
 
+        # ====================================================
+        # SECURITY UNLOAD FIELDS
+        # ====================================================
+
+        lr_number = request.form.get(
+            "lr_number",
+            ""
+        ).strip()
+
         invoice_number = request.form.get(
             "invoice_number",
             ""
@@ -1424,6 +1673,10 @@ def checkin():
             ""
         ).strip()
 
+        # ====================================================
+        # VALIDATION
+        # ====================================================
+
         if not reg_no or not vtype:
 
             flash(
@@ -1435,30 +1688,61 @@ def checkin():
                 url_for("index")
             )
 
-        if dock_number:
+        if load_unload.lower() not in (
+            "load",
+            "unload"
+        ):
 
-            try:
+            flash(
+                "Load/Unload must be Load or Unload.",
+                "danger"
+            )
 
-                dock_int = int(
-                    dock_number
-                )
+            return redirect(
+                url_for("index")
+            )
 
-                if dock_int < 1 or dock_int > 16:
+        if not validate_dock(dock_number):
 
-                    raise ValueError
+            flash(
+                "Dock Assign Number must be between 1 and 16.",
+                "danger"
+            )
 
-            except ValueError:
+            return redirect(
+                url_for("index")
+            )
 
-                flash(
-                    "Dock Assign Number must be between 1 and 16.",
-                    "danger"
-                )
+        # ====================================================
+        # LOAD LOGIC
+        #
+        # VERY IMPORTANT:
+        #
+        # LOAD:
+        # Security does not know LR / Invoice / Qty / Boxes.
+        #
+        # Therefore all those fields are forcibly blank.
+        # ====================================================
 
-                return redirect(
-                    url_for("index")
-                )
+        if load_unload.lower() == "load":
+
+            lr_number = ""
+
+            invoice_number = ""
+
+            invoice_qty = ""
+
+            number_of_boxes = ""
+
+        # ====================================================
+        # TIME
+        # ====================================================
 
         now = current_time()
+
+        # ====================================================
+        # CREATE VEHICLE
+        # ====================================================
 
         vehicle = Vehicle(
 
@@ -1482,7 +1766,7 @@ def checkin():
 
             check_in=now,
 
-            check_out="",
+            check_out=None,
 
             driver_name=driver_name,
 
@@ -1494,17 +1778,63 @@ def checkin():
 
             number_of_boxes=number_of_boxes,
 
+            supervisor_invoice_qty="",
+
+            supervisor_number_of_boxes="",
+
+            supervisor_damaged_qty="",
+
+            supervisor_damaged_boxes="",
+
             dock_number=dock_number,
 
             flow_type="INBOUND",
 
-            security_checkin_by=session.get(
-                "user"
-            ),
+            security_checkin_by=current_user(),
 
-            location=session.get(
-                "location"
-            ),
+            supervisor_unload_by=None,
+
+            unload_time=None,
+
+            unload_remarks=None,
+
+            # LOAD FIELDS ALWAYS BLANK AT GATE CHECK-IN
+
+            load_lr_number="",
+
+            load_invoice_number="",
+
+            load_invoice_qty="",
+
+            load_number_of_boxes="",
+
+            actual_qty="",
+
+            actual_boxes="",
+
+            supervisor_load_by=None,
+
+            load_completed_time=None,
+
+            load_remarks=None,
+
+            # SECURITY CHECKOUT VALUES
+
+            security_checkout_invoice_qty="",
+
+            security_checkout_number_of_boxes="",
+
+            # DIRECT OUTBOUND
+
+            outbound_supervisor_by=None,
+
+            outbound_entry_time=None,
+
+            outbound_remarks=None,
+
+            checkout_by=None,
+
+            location=current_location()
         )
 
         db.session.add(
@@ -1514,7 +1844,7 @@ def checkin():
         db.session.commit()
 
         flash(
-            "Inbound vehicle successfully checked in by Security!",
+            f"Gate Check-In successful for {reg_no}.",
             "success"
         )
 
@@ -1523,11 +1853,11 @@ def checkin():
         db.session.rollback()
 
         logging.exception(
-            "Inbound check-in error"
+            "Gate Check-In error"
         )
 
         flash(
-            f"Error during check-in: {e}",
+            f"Error during Gate Check-In: {e}",
             "danger"
         )
 
@@ -1537,16 +1867,14 @@ def checkin():
 
 
 # ============================================================
-# INBOUND UNLOAD
-# SUPERVISOR ONLY
+# SUPERVISOR LOAD
 # ============================================================
 
-
 @app.route(
-    "/unload/<int:vid>",
+    "/load/<int:vid>",
     methods=["GET", "POST"]
 )
-def unload(vid):
+def load_vehicle(vid):
 
     if not require_login():
 
@@ -1557,7 +1885,7 @@ def unload(vid):
     if not is_supervisor():
 
         flash(
-            "Unauthorized! Only Supervisor can complete unloading.",
+            "Only Supervisor can complete loading.",
             "warning"
         )
 
@@ -1594,7 +1922,7 @@ def unload(vid):
     if vehicle.flow_type != "INBOUND":
 
         flash(
-            "This vehicle is not an Inbound vehicle.",
+            "This is not an Inbound vehicle.",
             "warning"
         )
 
@@ -1602,12 +1930,301 @@ def unload(vid):
             url_for("index")
         )
 
+    if not vehicle.load_unload:
+
+        flash(
+            "Load/Unload type is missing.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    if vehicle.load_unload.strip().lower() != "load":
+
+        flash(
+            "This vehicle is not marked for Load.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    # ========================================================
+    # POST
+    # ========================================================
+
+    if request.method == "POST":
+
+        try:
+
+            load_lr_number = request.form.get(
+                "load_lr_number",
+                ""
+            ).strip()
+
+            load_invoice_number = request.form.get(
+                "load_invoice_number",
+                ""
+            ).strip()
+
+            load_invoice_qty = request.form.get(
+                "load_invoice_qty",
+                ""
+            ).strip()
+
+            load_number_of_boxes = request.form.get(
+                "load_number_of_boxes",
+                ""
+            ).strip()
+
+            actual_qty = request.form.get(
+                "actual_qty",
+                ""
+            ).strip()
+
+            actual_boxes = request.form.get(
+                "actual_boxes",
+                ""
+            ).strip()
+
+            load_remarks = request.form.get(
+                "load_remarks",
+                ""
+            ).strip()
+
+            # =================================================
+            # REQUIRED LOAD FIELDS
+            # =================================================
+
+            if not load_lr_number:
+
+                flash(
+                    "LR Number is required.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "load_vehicle",
+                        vid=vid
+                    )
+                )
+
+            if not load_invoice_number:
+
+                flash(
+                    "Invoice Number is required.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "load_vehicle",
+                        vid=vid
+                    )
+                )
+
+            if not load_invoice_qty:
+
+                flash(
+                    "Invoice Quantity is required.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "load_vehicle",
+                        vid=vid
+                    )
+                )
+
+            if not load_number_of_boxes:
+
+                flash(
+                    "Number of Boxes is required.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "load_vehicle",
+                        vid=vid
+                    )
+                )
+
+            # =================================================
+            # SAVE LOAD DATA
+            # =================================================
+
+            vehicle.load_lr_number = (
+                load_lr_number
+            )
+
+            vehicle.load_invoice_number = (
+                load_invoice_number
+            )
+
+            vehicle.load_invoice_qty = (
+                load_invoice_qty
+            )
+
+            vehicle.load_number_of_boxes = (
+                load_number_of_boxes
+            )
+
+            vehicle.actual_qty = (
+                actual_qty
+            )
+
+            vehicle.actual_boxes = (
+                actual_boxes
+            )
+
+            vehicle.supervisor_load_by = (
+                current_user()
+            )
+
+            vehicle.load_completed_time = (
+                current_time()
+            )
+
+            vehicle.load_remarks = (
+                load_remarks
+            )
+
+            # =================================================
+            # DO NOT PUT LOAD DATA INTO GENERAL UNLOAD FIELDS
+            #
+            # LR / Invoice / Qty / Boxes remain in their
+            # dedicated LOAD fields.
+            # =================================================
+
+            db.session.commit()
+
+            flash(
+                "Loading completed successfully by Supervisor.",
+                "success"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            logging.exception(
+                "Supervisor Load error"
+            )
+
+            flash(
+                f"Error during loading: {e}",
+                "danger"
+            )
+
+    return render_template(
+        "load.html",
+        vehicle=vehicle,
+        user=current_user(),
+        role=current_role(),
+        location=current_location()
+    )
+
+
+# ============================================================
+# SUPERVISOR UNLOAD
+# ============================================================
+
+@app.route(
+    "/unload/<int:vid>",
+    methods=["GET", "POST"]
+)
+def unload(vid):
+
+    if not require_login():
+
+        return redirect(
+            url_for("login")
+        )
+
+    if not is_supervisor():
+
+        flash(
+            "Only Supervisor can complete unloading.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    vehicle = get_vehicle_for_current_user(
+        vid
+    )
+
+    if vehicle is None:
+
+        flash(
+            "Vehicle not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    if vehicle.status != "IN":
+
+        flash(
+            "Vehicle is already checked out.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    if vehicle.flow_type != "INBOUND":
+
+        flash(
+            "This vehicle is not Inbound.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    if (
+        vehicle.load_unload
+        and
+        vehicle.load_unload.strip().lower()
+        == "load"
+    ):
+
+        flash(
+            "This vehicle is marked as Load, not Unload.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    # ========================================================
+    # POST
+    # ========================================================
+
     if request.method == "POST":
 
         try:
 
             # =================================================
-            # EXISTING VEHICLE DETAILS
+            # VEHICLE DETAILS
             # =================================================
 
             vehicle.reg_no = request.form.get(
@@ -1640,11 +2257,6 @@ def unload(vid):
                 vehicle.contact_no or ""
             ).strip()
 
-            vehicle.load_unload = request.form.get(
-                "load_unload",
-                vehicle.load_unload or "Unload"
-            ).strip()
-
             vehicle.driver_name = request.form.get(
                 "driver_name",
                 vehicle.driver_name or ""
@@ -1660,35 +2272,21 @@ def unload(vid):
                 vehicle.dock_number or ""
             ).strip()
 
-            # =================================================
-            # DOCK VALIDATION
-            # =================================================
+            if not validate_dock(
+                vehicle.dock_number
+            ):
 
-            if vehicle.dock_number:
+                flash(
+                    "Dock Assign Number must be between 1 and 16.",
+                    "danger"
+                )
 
-                try:
-
-                    dock_int = int(
-                        vehicle.dock_number
+                return redirect(
+                    url_for(
+                        "unload",
+                        vid=vid
                     )
-
-                    if dock_int < 1 or dock_int > 16:
-
-                        raise ValueError
-
-                except ValueError:
-
-                    flash(
-                        "Dock Assign Number must be between 1 and 16.",
-                        "danger"
-                    )
-
-                    return redirect(
-                        url_for(
-                            "unload",
-                            vid=vid
-                        )
-                    )
+                )
 
             # =================================================
             # SUPERVISOR ACTUAL VALUES
@@ -1696,16 +2294,18 @@ def unload(vid):
 
             vehicle.supervisor_invoice_qty = request.form.get(
                 "supervisor_invoice_qty",
-                vehicle.supervisor_invoice_qty or ""
+                ""
             ).strip()
 
             vehicle.supervisor_number_of_boxes = request.form.get(
                 "supervisor_number_of_boxes",
-                vehicle.supervisor_number_of_boxes or ""
+                ""
             ).strip()
 
-            # These are retained from your existing logic.
-            # They do not alter existing database columns.
+            # =================================================
+            # DAMAGED
+            # =================================================
+
             vehicle.supervisor_damaged_qty = request.form.get(
                 "supervisor_damaged_qty",
                 ""
@@ -1717,23 +2317,21 @@ def unload(vid):
             ).strip()
 
             # =================================================
-            # SUPERVISOR UNLOAD INFORMATION
+            # SUPERVISOR UNLOAD
             # =================================================
 
-            vehicle.supervisor_unload_by = session.get(
-                "user"
+            vehicle.supervisor_unload_by = (
+                current_user()
             )
 
-            vehicle.unload_time = current_time()
+            vehicle.unload_time = (
+                current_time()
+            )
 
             vehicle.unload_remarks = request.form.get(
                 "unload_remarks",
                 ""
             ).strip()
-
-            # =================================================
-            # GENERAL REMARKS
-            # =================================================
 
             extra_remarks = request.form.get(
                 "remarks",
@@ -1743,10 +2341,6 @@ def unload(vid):
             if extra_remarks:
 
                 vehicle.remarks = extra_remarks
-
-            # =================================================
-            # SAVE
-            # =================================================
 
             db.session.commit()
 
@@ -1764,7 +2358,7 @@ def unload(vid):
             db.session.rollback()
 
             logging.exception(
-                "Unload error"
+                "Supervisor Unload error"
             )
 
             flash(
@@ -1775,17 +2369,16 @@ def unload(vid):
     return render_template(
         "unload.html",
         vehicle=vehicle,
-        role=session.get("role"),
-        user=session.get("user"),
-        location=session.get("location"),
+        user=current_user(),
+        role=current_role(),
+        location=current_location()
     )
 
 
 # ============================================================
-# OUTBOUND ENTRY
-# SUPERVISOR ONLY
+# DIRECT OUTBOUND ENTRY
+# SUPERVISOR
 # ============================================================
-
 
 @app.route(
     "/outbound",
@@ -1802,8 +2395,8 @@ def outbound():
     if not is_supervisor():
 
         flash(
-            "Unauthorized access.",
-            "danger"
+            "Only Supervisor can create Outbound Entry.",
+            "warning"
         )
 
         return redirect(
@@ -1811,10 +2404,6 @@ def outbound():
         )
 
     try:
-
-        # =====================================================
-        # FORM VALUES
-        # =====================================================
 
         reg_no = request.form.get(
             "reg_no",
@@ -1886,10 +2475,6 @@ def outbound():
             ""
         ).strip()
 
-        # =====================================================
-        # REQUIRED FIELDS
-        # =====================================================
-
         if not reg_no or not vtype:
 
             flash(
@@ -1901,36 +2486,16 @@ def outbound():
                 url_for("index")
             )
 
-        # =====================================================
-        # DOCK VALIDATION
-        # =====================================================
+        if not validate_dock(dock_number):
 
-        if dock_number:
+            flash(
+                "Dock Assign Number must be between 1 and 16.",
+                "danger"
+            )
 
-            try:
-
-                dock_int = int(
-                    dock_number
-                )
-
-                if dock_int < 1 or dock_int > 16:
-
-                    raise ValueError
-
-            except ValueError:
-
-                flash(
-                    "Dock Assign Number must be between 1 and 16.",
-                    "danger"
-                )
-
-                return redirect(
-                    url_for("index")
-                )
-
-        # =====================================================
-        # CREATE OUTBOUND VEHICLE
-        # =====================================================
+            return redirect(
+                url_for("index")
+            )
 
         now = current_time()
 
@@ -1960,6 +2525,14 @@ def outbound():
 
             number_of_boxes=number_of_boxes,
 
+            supervisor_invoice_qty="",
+
+            supervisor_number_of_boxes="",
+
+            supervisor_damaged_qty="",
+
+            supervisor_damaged_boxes="",
+
             dock_number=dock_number,
 
             remarks=remarks,
@@ -1978,24 +2551,44 @@ def outbound():
 
             unload_time=None,
 
-            checkout_by=None,
+            unload_remarks=None,
 
-            outbound_supervisor_by=session.get(
-                "user"
-            ),
+            # LOAD fields blank
+
+            load_lr_number="",
+
+            load_invoice_number="",
+
+            load_invoice_qty="",
+
+            load_number_of_boxes="",
+
+            actual_qty="",
+
+            actual_boxes="",
+
+            supervisor_load_by=None,
+
+            load_completed_time=None,
+
+            load_remarks=None,
+
+            security_checkout_invoice_qty="",
+
+            security_checkout_number_of_boxes="",
+
+            # DIRECT OUTBOUND
+
+            outbound_supervisor_by=current_user(),
 
             outbound_entry_time=now,
 
             outbound_remarks=remarks,
 
-            location=session.get(
-                "location"
-            ),
-        )
+            checkout_by=None,
 
-        # =====================================================
-        # SAVE TO DATABASE
-        # =====================================================
+            location=current_location()
+        )
 
         db.session.add(
             vehicle
@@ -2027,13 +2620,12 @@ def outbound():
 
 
 # ============================================================
-# CHECK-OUT
-# SECURITY + ADMIN
+# SECURITY CHECKOUT
 # ============================================================
 
-
 @app.route(
-    "/checkout/<int:vid>"
+    "/checkout/<int:vid>",
+    methods=["GET", "POST"]
 )
 def checkout(vid):
 
@@ -2049,7 +2641,7 @@ def checkout(vid):
     ):
 
         flash(
-            "Unauthorized! Only Security can Check-Out.",
+            "Only Security can Check-Out.",
             "warning"
         )
 
@@ -2057,48 +2649,59 @@ def checkout(vid):
             url_for("index")
         )
 
-    try:
+    vehicle = get_vehicle_for_current_user(
+        vid
+    )
 
-        vehicle = get_vehicle_for_current_user(
-            vid
+    if vehicle is None:
+
+        flash(
+            "Vehicle not found.",
+            "danger"
         )
 
-        if vehicle is None:
+        return redirect(
+            url_for("index")
+        )
 
-            flash(
-                "Vehicle not found.",
-                "danger"
-            )
+    if vehicle.status != "IN":
 
-            return redirect(
-                url_for("index")
-            )
+        flash(
+            "Vehicle is already checked out.",
+            "warning"
+        )
 
-        if vehicle.status != "IN":
+        return redirect(
+            url_for("index")
+        )
 
-            flash(
-                "Vehicle is already checked out.",
-                "warning"
-            )
+    # ========================================================
+    # INBOUND
+    # ========================================================
 
-            return redirect(
-                url_for("index")
-            )
+    if vehicle.flow_type == "INBOUND":
 
-        # =====================================================
-        # INBOUND MUST BE UNLOADED FIRST
-        # =====================================================
+        is_load = (
+            vehicle.load_unload
+            and
+            vehicle.load_unload.strip().lower()
+            == "load"
+        )
 
-        if vehicle.flow_type == "INBOUND":
+        # ====================================================
+        # LOAD CHECKOUT
+        # ====================================================
 
-            if (
-                not vehicle.supervisor_unload_by
-                or not vehicle.unload_time
-            ):
+        if is_load:
+
+            # -----------------------------------------------
+            # Supervisor must complete LOAD first
+            # -----------------------------------------------
+
+            if not vehicle.supervisor_load_by:
 
                 flash(
-                    "Inbound vehicle must be unloaded by Supervisor "
-                    "before Security can Check-Out.",
+                    "Supervisor must complete loading before Security Check-Out.",
                     "warning"
                 )
 
@@ -2106,48 +2709,224 @@ def checkout(vid):
                     url_for("index")
                 )
 
-        # =====================================================
-        # CHECKOUT
-        # =====================================================
+            if not vehicle.load_completed_time:
 
-        vehicle.status = "OUT"
+                flash(
+                    "Loading completion time is missing.",
+                    "warning"
+                )
 
-        vehicle.check_out = current_time()
+                return redirect(
+                    url_for("index")
+                )
 
-        vehicle.checkout_by = session.get(
-            "user"
-        )
+            # -----------------------------------------------
+            # Required Supervisor Load Details
+            # -----------------------------------------------
 
-        db.session.commit()
+            if not vehicle.load_lr_number:
 
-        flash(
-            "Vehicle successfully checked out by Security!",
-            "success"
-        )
+                flash(
+                    "Supervisor LR Number is missing.",
+                    "warning"
+                )
 
-    except Exception as e:
+                return redirect(
+                    url_for("index")
+                )
 
-        db.session.rollback()
+            if not vehicle.load_invoice_number:
 
-        logging.exception(
-            "Check-out error"
-        )
+                flash(
+                    "Supervisor Invoice Number is missing.",
+                    "warning"
+                )
 
-        flash(
-            f"Error during check-out: {e}",
-            "danger"
-        )
+                return redirect(
+                    url_for("index")
+                )
 
-    return redirect(
-        url_for("index")
+            if not vehicle.load_invoice_qty:
+
+                flash(
+                    "Supervisor Invoice Quantity is missing.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("index")
+                )
+
+            if not vehicle.load_number_of_boxes:
+
+                flash(
+                    "Supervisor Number of Boxes is missing.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("index")
+                )
+
+            # -----------------------------------------------
+            # SECURITY POST
+            # -----------------------------------------------
+
+            if request.method == "POST":
+
+                security_invoice_qty = request.form.get(
+                    "security_checkout_invoice_qty",
+                    ""
+                ).strip()
+
+                security_boxes = request.form.get(
+                    "security_checkout_number_of_boxes",
+                    ""
+                ).strip()
+
+                if not security_invoice_qty:
+
+                    flash(
+                        "Security Invoice Quantity is required.",
+                        "danger"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "checkout",
+                            vid=vid
+                        )
+                    )
+
+                if not security_boxes:
+
+                    flash(
+                        "Security Number Of Boxes is required.",
+                        "danger"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "checkout",
+                            vid=vid
+                        )
+                    )
+
+                vehicle.security_checkout_invoice_qty = (
+                    security_invoice_qty
+                )
+
+                vehicle.security_checkout_number_of_boxes = (
+                    security_boxes
+                )
+
+        # ====================================================
+        # UNLOAD CHECKOUT
+        # ====================================================
+
+        else:
+
+            if not vehicle.supervisor_unload_by:
+
+                flash(
+                    "Supervisor must complete unloading before Security Check-Out.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("index")
+                )
+
+            if not vehicle.unload_time:
+
+                flash(
+                    "Unload completion time is missing.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("index")
+                )
+
+    # ========================================================
+    # DIRECT OUTBOUND
+    # ========================================================
+
+    elif vehicle.flow_type == "OUTBOUND":
+
+        if not vehicle.outbound_supervisor_by:
+
+            flash(
+                "Outbound Supervisor entry is incomplete.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+    # ========================================================
+    # CHECKOUT
+    # ========================================================
+
+    if request.method == "POST":
+
+        try:
+
+            vehicle.status = "OUT"
+
+            vehicle.check_out = (
+                current_time()
+            )
+
+            vehicle.checkout_by = (
+                current_user()
+            )
+
+            db.session.commit()
+
+            flash(
+                f"Vehicle {vehicle.reg_no} successfully checked out.",
+                "success"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            logging.exception(
+                "Checkout error"
+            )
+
+            flash(
+                f"Error during Check-Out: {e}",
+                "danger"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+    # ========================================================
+    # GET CHECKOUT PAGE
+    # ========================================================
+
+    return render_template(
+        "checkout.html",
+        vehicle=vehicle,
+        user=current_user(),
+        role=current_role(),
+        location=current_location()
     )
 
 
 # ============================================================
-# EXPORT CSV
-# ADMIN + SUPERVISOR
+# CSV EXPORT
 # ============================================================
-
 
 @app.route("/export")
 def export():
@@ -2158,10 +2937,10 @@ def export():
             url_for("login")
         )
 
-    if session.get("role") not in [
+    if current_role() not in (
         "admin",
         "supervisor"
-    ]:
+    ):
 
         flash(
             "Unauthorized! Access denied.",
@@ -2174,47 +2953,68 @@ def export():
 
     si = io.StringIO()
 
-    cw = csv.writer(
-        si
-    )
-
-    # ========================================================
-    # EXISTING CSV COLUMNS - UNCHANGED
-    # ========================================================
+    cw = csv.writer(si)
 
     cw.writerow([
+
         "Entry ID",
         "Location",
         "Flow Type",
-        "Reg. Number",
+        "Reg Number",
         "Type",
         "Transporter",
         "Supplier",
-        "LR Number",
+
+        "General LR Number",
         "Contact No",
+
         "Driver Name",
         "Driver Mobile",
-        "Invoice Number",
-        "Invoice Qty",
-        "Number Of Boxes",
+
+        "General Invoice Number",
+        "General Invoice Qty",
+        "General Number Of Boxes",
+
+        "Load LR Number",
+        "Load Invoice Number",
+        "Load Invoice Qty",
+        "Load Number Of Boxes",
+        "Load Actual Qty",
+        "Load Actual Boxes",
+        "Supervisor Load By",
+        "Load Completed Time",
+        "Load Remarks",
+
+        "Unload Supervisor Qty",
+        "Unload Supervisor Boxes",
+        "Damaged Qty",
+        "Damaged Boxes",
+
         "Dock Number",
         "Load/Unload",
         "Status",
         "Remarks",
+
         "Check-In Time",
         "Security Check-In By",
+
         "Supervisor Unload By",
         "Unload Time",
         "Unload Remarks",
+
         "Outbound Supervisor By",
         "Outbound Entry Time",
         "Outbound Remarks",
+
+        "Security Checkout Qty",
+        "Security Checkout Boxes",
+
         "Check-Out Time",
         "Check-Out By",
     ])
 
     # ========================================================
-    # LOCATION FILTER
+    # LOCATION
     # ========================================================
 
     if is_admin():
@@ -2226,20 +3026,19 @@ def export():
     else:
 
         vehicles = Vehicle.query.filter_by(
-            location=session.get(
-                "location"
-            )
+            location=current_location()
         ).order_by(
             Vehicle.id.asc()
         ).all()
 
     # ========================================================
-    # CSV DATA
+    # ROWS
     # ========================================================
 
     for v in vehicles:
 
         cw.writerow([
+
             v.id,
             v.location,
             v.flow_type,
@@ -2247,25 +3046,51 @@ def export():
             v.type,
             v.transporter,
             v.supplier,
+
             v.lr_number,
             v.contact_no,
+
             v.driver_name,
             v.driver_mobile,
+
             v.invoice_number,
             v.invoice_qty,
             v.number_of_boxes,
+
+            v.load_lr_number,
+            v.load_invoice_number,
+            v.load_invoice_qty,
+            v.load_number_of_boxes,
+            v.actual_qty,
+            v.actual_boxes,
+            v.supervisor_load_by,
+            v.load_completed_time,
+            v.load_remarks,
+
+            v.supervisor_invoice_qty,
+            v.supervisor_number_of_boxes,
+            v.supervisor_damaged_qty,
+            v.supervisor_damaged_boxes,
+
             v.dock_number,
             v.load_unload,
             v.status,
             v.remarks,
+
             v.check_in,
             v.security_checkin_by,
+
             v.supervisor_unload_by,
             v.unload_time,
             v.unload_remarks,
+
             v.outbound_supervisor_by,
             v.outbound_entry_time,
             v.outbound_remarks,
+
+            v.security_checkout_invoice_qty,
+            v.security_checkout_number_of_boxes,
+
             v.check_out,
             v.checkout_by,
         ])
@@ -2282,7 +3107,7 @@ def export():
     )
 
     output.headers[
-        "Content-type"
+        "Content-Type"
     ] = "text/csv"
 
     return output
@@ -2291,7 +3116,6 @@ def export():
 # ============================================================
 # CHATBOT
 # ============================================================
-
 
 @app.route(
     "/chatbot",
@@ -2307,10 +3131,6 @@ def chatbot():
 
     try:
 
-        # ====================================================
-        # LOCATION RESTRICTION
-        # ====================================================
-
         if is_admin():
 
             vehicles = Vehicle.query.all()
@@ -2318,9 +3138,7 @@ def chatbot():
         else:
 
             vehicles = Vehicle.query.filter_by(
-                location=session.get(
-                    "location"
-                )
+                location=current_location()
             ).all()
 
         data = request.get_json(
@@ -2337,30 +3155,32 @@ def chatbot():
         )
 
         answer = (
-            "Sorry, I didn’t understand your question."
+            "Sorry, I didn't understand your question."
         )
 
         # ====================================================
-        # TOTAL VEHICLES
+        # TOTAL
         # ====================================================
 
         if (
             "total" in query
-            and "vehicle" in query
+            and
+            "vehicle" in query
         ):
 
             answer = (
-                f"There are {total} "
-                f"vehicles in the system."
+                f"There are {total} vehicles "
+                f"in the system."
             )
 
         # ====================================================
-        # IN VEHICLES
+        # IN
         # ====================================================
 
         elif (
             "in" in query
-            and "vehicle" in query
+            and
+            "vehicle" in query
         ):
 
             total_in = sum(
@@ -2375,12 +3195,13 @@ def chatbot():
             )
 
         # ====================================================
-        # OUT VEHICLES
+        # OUT
         # ====================================================
 
         elif (
             "out" in query
-            and "vehicle" in query
+            and
+            "vehicle" in query
         ):
 
             total_out = sum(
@@ -2395,17 +3216,64 @@ def chatbot():
             )
 
         # ====================================================
+        # LOAD
+        # ====================================================
+
+        elif "load" in query:
+
+            load_vehicles = [
+                v
+                for v in vehicles
+                if (
+                    v.load_unload
+                    and
+                    v.load_unload.lower() == "load"
+                    and
+                    v.status == "IN"
+                )
+            ]
+
+            answer = (
+                f"There are {len(load_vehicles)} "
+                f"Load vehicles currently IN."
+            )
+
+        # ====================================================
+        # UNLOAD
+        # ====================================================
+
+        elif "unload" in query:
+
+            unload_vehicles = [
+                v
+                for v in vehicles
+                if (
+                    v.load_unload
+                    and
+                    v.load_unload.lower() == "unload"
+                    and
+                    v.status == "IN"
+                )
+            ]
+
+            answer = (
+                f"There are {len(unload_vehicles)} "
+                f"Unload vehicles currently IN."
+            )
+
+        # ====================================================
         # OLDEST
         # ====================================================
 
         elif (
             "oldest" in query
-            or "sabse purana" in query
+            or
+            "sabse purana" in query
         ):
 
             try:
 
-                oldest_in = min(
+                oldest = min(
                     (
                         v
                         for v in vehicles
@@ -2420,23 +3288,14 @@ def chatbot():
 
                 answer = (
                     f"The oldest check-in is "
-                    f"{oldest_in.reg_no} "
-                    f"at {oldest_in.check_in}."
-                )
-
-            except ValueError:
-
-                answer = (
-                    "Could not find the oldest "
-                    "check-in due to a data "
-                    "format issue."
+                    f"{oldest.reg_no} "
+                    f"at {oldest.check_in}."
                 )
 
             except Exception:
 
                 answer = (
-                    "No vehicles with a "
-                    "check-in time found."
+                    "No valid check-in data found."
                 )
 
         # ====================================================
@@ -2445,12 +3304,13 @@ def chatbot():
 
         elif (
             "latest" in query
-            or "sabse naya" in query
+            or
+            "sabse naya" in query
         ):
 
             try:
 
-                latest_in = max(
+                latest = max(
                     (
                         v
                         for v in vehicles
@@ -2465,23 +3325,14 @@ def chatbot():
 
                 answer = (
                     f"The latest check-in is "
-                    f"{latest_in.reg_no} "
-                    f"at {latest_in.check_in}."
-                )
-
-            except ValueError:
-
-                answer = (
-                    "Could not find the latest "
-                    "check-in due to a data "
-                    "format issue."
+                    f"{latest.reg_no} "
+                    f"at {latest.check_in}."
                 )
 
             except Exception:
 
                 answer = (
-                    "No vehicles with a "
-                    "check-in time found."
+                    "No valid check-in data found."
                 )
 
         # ====================================================
@@ -2494,27 +3345,18 @@ def chatbot():
 
                 if (
                     v.reg_no
-                    and v.reg_no.lower()
-                    in query
+                    and
+                    v.reg_no.lower() in query
                 ):
-
-                    in_time = (
-                        v.check_in
-                        or "N/A"
-                    )
-
-                    out_time = (
-                        v.check_out
-                        or "N/A"
-                    )
 
                     answer = (
                         f"Details for {v.reg_no}: "
                         f"Status = {v.status}, "
-                        f"Check-in = {in_time}, "
-                        f"Check-out = {out_time}, "
-                        f"Type = "
-                        f"{v.type or 'Unknown'}."
+                        f"Flow = {v.flow_type}, "
+                        f"Load/Unload = {v.load_unload}, "
+                        f"Check-in = {v.check_in or 'N/A'}, "
+                        f"Check-out = {v.check_out or 'N/A'}, "
+                        f"Type = {v.type or 'Unknown'}."
                     )
 
                     break
@@ -2523,7 +3365,7 @@ def chatbot():
             "answer": answer
         })
 
-    except Exception as e:
+    except Exception:
 
         logging.exception(
             "Chatbot error"
@@ -2550,13 +3392,8 @@ def health():
 
 
 # ============================================================
-# APPLICATION START
+# DATABASE INITIALIZATION
 # ============================================================
-
-# IMPORTANT:
-# Database initialization is protected by try/except above,
-# so a temporary DB connection problem will not directly
-# prevent Gunicorn from importing app:app.
 
 init_database()
 
