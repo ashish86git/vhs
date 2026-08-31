@@ -1,51 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
 
-    <meta charset="UTF-8">
+{% extends "base.html" %}
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+{% block title %}
+Load Vehicle | Vehicle Management System
+{% endblock %}
 
-    <title>Load Vehicle</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+{% block content %}
 
-    <style>
+<style>
 
-        body {
-            background: #f5f6f8;
-        }
+    .main-card {
+        max-width: 1000px;
+        margin: 30px auto;
+    }
 
-        .main-card {
-            max-width: 1000px;
-            margin: 30px auto;
-        }
+    .section-title {
+        font-weight: 600;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
 
-        .section-title {
-            font-weight: 600;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+    .required::after {
+        content: " *";
+        color: red;
+    }
 
-        .required::after {
-            content: " *";
-            color: red;
-        }
+</style>
 
-    </style>
 
-</head>
-
-<body>
-
-<div class="container">
+<div class="container-fluid px-3 px-lg-4 py-4">
 
     <div class="card shadow-sm main-card">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
 
         <div class="card-header bg-primary text-white">
 
@@ -55,7 +46,12 @@
 
         </div>
 
+
         <div class="card-body">
+
+            <!-- =================================================
+                 VEHICLE SUMMARY
+            ================================================== -->
 
             <div class="alert alert-info">
 
@@ -70,23 +66,28 @@
                 &nbsp; | &nbsp;
 
                 <strong>Flow:</strong>
+
                 <span class="badge bg-success">
                     LOAD
                 </span>
 
             </div>
 
+
             <form method="POST">
 
-                <!-- =========================================
+                <!-- =============================================
                      VEHICLE INFORMATION
-                ========================================== -->
+                ============================================== -->
 
                 <h5 class="section-title">
                     Vehicle Information
                 </h5>
 
+
                 <div class="row g-3">
+
+                    <!-- VEHICLE REG NO -->
 
                     <div class="col-md-6">
 
@@ -103,6 +104,9 @@
 
                     </div>
 
+
+                    <!-- VEHICLE TYPE -->
+
                     <div class="col-md-6">
 
                         <label class="form-label">
@@ -118,6 +122,9 @@
 
                     </div>
 
+
+                    <!-- TRANSPORTER -->
+
                     <div class="col-md-6">
 
                         <label class="form-label">
@@ -132,6 +139,9 @@
                         >
 
                     </div>
+
+
+                    <!-- SUPPLIER -->
 
                     <div class="col-md-6">
 
@@ -150,17 +160,22 @@
 
                 </div>
 
+
                 <hr class="my-4">
 
-                <!-- =========================================
+
+                <!-- =============================================
                      LOAD DETAILS
-                ========================================== -->
+                ============================================== -->
 
                 <h5 class="section-title">
                     Load Details
                 </h5>
 
+
                 <div class="row g-3">
+
+                    <!-- LR NUMBER -->
 
                     <div class="col-md-6">
 
@@ -178,10 +193,13 @@
 
                     </div>
 
+
+                    <!-- INVOICE DISPATCH -->
+
                     <div class="col-md-6">
 
                         <label class="form-label required">
-                            Invoice Number
+                            No of invoice Dispatch
                         </label>
 
                         <input
@@ -194,10 +212,13 @@
 
                     </div>
 
+
+                    <!-- DISPATCH QTY -->
+
                     <div class="col-md-6">
 
                         <label class="form-label required">
-                            Invoice Quantity
+                            Dispatch QTY
                         </label>
 
                         <input
@@ -211,10 +232,13 @@
 
                     </div>
 
+
+                    <!-- DISPATCH BOXES -->
+
                     <div class="col-md-6">
 
                         <label class="form-label required">
-                            Number Of Boxes
+                            Dispatch No. Of Boxes
                         </label>
 
                         <input
@@ -229,61 +253,12 @@
 
                 </div>
 
-                <hr class="my-4">
 
-                <!-- =========================================
-                     ACTUAL DETAILS
-                ========================================== -->
-
-                <h5 class="section-title">
-                    Actual Load Details
-                    <small class="text-muted">
-                        (Optional)
-                    </small>
-                </h5>
-
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Actual Qty
-                        </label>
-
-                        <input
-                            type="number"
-                            step="any"
-                            name="actual_qty"
-                            class="form-control"
-                            value="{{ vehicle.actual_qty or '' }}"
-                        >
-
-                    </div>
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Actual Boxes
-                        </label>
-
-                        <input
-                            type="number"
-                            name="actual_boxes"
-                            class="form-control"
-                            value="{{ vehicle.actual_boxes or '' }}"
-                        >
-
-                    </div>
-
-                </div>
-
-                <hr class="my-4">
-
-                <!-- =========================================
+                <!-- =============================================
                      REMARKS
-                ========================================== -->
+                ============================================== -->
 
-                <div class="mb-3">
+                <div class="mb-3 mt-4">
 
                     <label class="form-label">
                         Remarks
@@ -297,9 +272,10 @@
 
                 </div>
 
-                <!-- =========================================
+
+                <!-- =============================================
                      BUTTONS
-                ========================================== -->
+                ============================================== -->
 
                 <div class="d-flex gap-2">
 
@@ -309,6 +285,7 @@
                     >
                         Submit Load
                     </button>
+
 
                     <a
                         href="{{ url_for('index') }}"
@@ -327,5 +304,5 @@
 
 </div>
 
-</body>
-</html>
+{% endblock %}
+

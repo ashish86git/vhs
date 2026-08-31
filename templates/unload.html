@@ -490,22 +490,9 @@ Inbound Unload | VehicleFlow
                         </div>
 
 
-                        <!-- CONTACT -->
 
-                        <div class="col-md-6">
 
-                            <label class="form-label">
-                                Contact Number
-                            </label>
 
-                            <input
-                                type="text"
-                                name="contact_no"
-                                class="form-control"
-                                value="{{ vehicle.contact_no or '' }}"
-                            >
-
-                        </div>
 
 
                         <!-- LOAD / UNLOAD -->
@@ -689,7 +676,7 @@ Inbound Unload | VehicleFlow
 
                                 <label class="form-label">
 
-                                    Actual Invoice Quantity
+                                    Received qty in vehicle
                                     <span class="text-danger">*</span>
 
                                 </label>
@@ -699,7 +686,7 @@ Inbound Unload | VehicleFlow
                                     name="supervisor_invoice_qty"
                                     class="form-control"
                                     value="{{ vehicle.supervisor_invoice_qty or '' }}"
-                                    placeholder="Enter actual quantity"
+                                    placeholder="Enter Received QTY"
                                     required
                                 >
 
@@ -718,7 +705,7 @@ Inbound Unload | VehicleFlow
 
                                 <label class="form-label">
 
-                                    Actual Number Of Boxes
+                                    Received Boxes in vehicle
                                     <span class="text-danger">*</span>
 
                                 </label>
@@ -728,7 +715,7 @@ Inbound Unload | VehicleFlow
                                     name="supervisor_number_of_boxes"
                                     class="form-control"
                                     value="{{ vehicle.supervisor_number_of_boxes or '' }}"
-                                    placeholder="Enter actual boxes"
+                                    placeholder="Enter Received boxes"
                                     required
                                 >
 
