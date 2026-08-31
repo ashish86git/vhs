@@ -243,15 +243,7 @@ User Management | VehicleFlow
                                 </span>
 
 
-                            {% elif u.role == 'lifelong' %}
 
-                                <span class="role-badge lifelong">
-
-                                    <i class="bi bi-building"></i>
-
-                                    Lifelong
-
-                                </span>
 
 
                             {% elif u.role == 'wm' %}
@@ -629,16 +621,7 @@ User Management | VehicleFlow
                                                     </option>
 
 
-                                                    <option
-                                                        value="lifelong"
-                                                        {% if u.role == 'lifelong' %}
-                                                            selected
-                                                        {% endif %}
-                                                    >
 
-                                                        Lifelong
-
-                                                    </option>
 
 
                                                     <option
@@ -1100,11 +1083,7 @@ User Management | VehicleFlow
                                 </option>
 
 
-                                <option value="lifelong">
 
-                                    Lifelong
-
-                                </option>
 
 
                                 <option value="wm">
