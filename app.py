@@ -3066,35 +3066,35 @@ def checkout(vid):
 # CSV EXPORT
 # ============================================================
 
+
 @app.route("/export")
 def export():
 
     if not require_login():
+        return redirect(url_for("login"))
 
-        return redirect(
-            url_for("login")
-        )
-
-    if current_role() not in (
-        "admin",
-        "supervisor"
-    ):
-
+    if session.get("role") not in ["admin", "supervisor"]:
         flash(
             "Unauthorized! Access denied.",
             "warning"
         )
+        return redirect(url_for("index"))
 
-        return redirect(
-            url_for("index")
-        )
-
+    # ------------------------------------------------------------
+    # CSV BUFFER
+    # ------------------------------------------------------------
     si = io.StringIO()
-
     cw = csv.writer(si)
 
-    cw.writerow([
+    # ------------------------------------------------------------
+    # FINAL EXPORT COLUMNS
+    #
+    # IMPORTANT:
+    # General LR / General Invoice / General Qty / General Boxes
+    # are intentionally NOT included.
+    # ------------------------------------------------------------
 
+    cw.writerow([
         "Entry ID",
         "Location",
         "Flow Type",
@@ -3102,17 +3102,13 @@ def export():
         "Type",
         "Transporter",
         "Supplier",
-
-        "General LR Number",
         "Contact No",
-
         "Driver Name",
         "Driver Mobile",
 
-        "General Invoice Number",
-        "General Invoice Qty",
-        "General Number Of Boxes",
-
+        # --------------------------------------------------------
+        # LOAD DATA
+        # --------------------------------------------------------
         "Load LR Number",
         "Load Invoice Number",
         "Load Invoice Qty",
@@ -3123,38 +3119,50 @@ def export():
         "Load Completed Time",
         "Load Remarks",
 
+        # --------------------------------------------------------
+        # UNLOAD DATA
+        # --------------------------------------------------------
         "Unload Supervisor Qty",
         "Unload Supervisor Boxes",
         "Damaged Qty",
         "Damaged Boxes",
 
+        # --------------------------------------------------------
+        # COMMON
+        # --------------------------------------------------------
         "Dock Number",
         "Load/Unload",
         "Status",
         "Remarks",
-
         "Check-In Time",
         "Security Check-In By",
 
+        # --------------------------------------------------------
+        # UNLOAD WORKFLOW
+        # --------------------------------------------------------
         "Supervisor Unload By",
         "Unload Time",
         "Unload Remarks",
 
+        # --------------------------------------------------------
+        # OUTBOUND WORKFLOW
+        # --------------------------------------------------------
         "Outbound Supervisor By",
         "Outbound Entry Time",
         "Outbound Remarks",
 
+        # --------------------------------------------------------
+        # CHECKOUT
+        # --------------------------------------------------------
         "Security Checkout Qty",
         "Security Checkout Boxes",
-
         "Check-Out Time",
         "Check-Out By",
     ])
 
-    # ========================================================
-    # LOCATION
-    # ========================================================
-
+    # ------------------------------------------------------------
+    # GET VEHICLES
+    # ------------------------------------------------------------
     if is_admin():
 
         vehicles = Vehicle.query.order_by(
@@ -3164,91 +3172,222 @@ def export():
     else:
 
         vehicles = Vehicle.query.filter_by(
-            location=current_location()
+            location=session.get("location")
         ).order_by(
             Vehicle.id.asc()
         ).all()
 
-    # ========================================================
-    # ROWS
-    # ========================================================
-
+    # ------------------------------------------------------------
+    # EXPORT EACH VEHICLE
+    # ------------------------------------------------------------
     for v in vehicles:
+
+        # ========================================================
+        # FLOW TYPE
+        #
+        # BUSINESS RULE:
+        # Load   -> OUTBOUND
+        # Unload -> INBOUND
+        #
+        # This is intentionally based on load_unload so that
+        # old records whose flow_type was incorrectly/defaulted
+        # to INBOUND are also exported correctly.
+        # ========================================================
+
+        load_unload_value = (
+            (getattr(v, "load_unload", "") or "")
+            .strip()
+            .lower()
+        )
+
+        if load_unload_value == "load":
+
+            flow_type = "OUTBOUND"
+
+        elif load_unload_value == "unload":
+
+            flow_type = "INBOUND"
+
+        else:
+
+            # Fallback for records where load/unload is empty.
+            stored_flow = (
+                getattr(v, "flow_type", "") or ""
+            ).strip().upper()
+
+            if stored_flow in ["INBOUND", "OUTBOUND"]:
+                flow_type = stored_flow
+            else:
+                flow_type = "-"
+
+        # ========================================================
+        # LOAD DATA
+        #
+        # getattr() is used so export does not crash if an older
+        # record/model does not contain one of these optional
+        # fields.
+        # ========================================================
+
+        load_lr_number = (
+            getattr(v, "load_lr_number", "") or ""
+        )
+
+        load_invoice_number = (
+            getattr(v, "load_invoice_number", "") or ""
+        )
+
+        load_invoice_qty = (
+            getattr(v, "load_invoice_qty", "") or ""
+        )
+
+        load_number_of_boxes = (
+            getattr(v, "load_number_of_boxes", "") or ""
+        )
+
+        load_actual_qty = (
+            getattr(v, "load_actual_qty", "") or ""
+        )
+
+        load_actual_boxes = (
+            getattr(v, "load_actual_boxes", "") or ""
+        )
+
+        supervisor_load_by = (
+            getattr(v, "supervisor_load_by", "") or ""
+        )
+
+        load_completed_time = (
+            getattr(v, "load_completed_time", "") or ""
+        )
+
+        load_remarks = (
+            getattr(v, "load_remarks", "") or ""
+        )
+
+        # ========================================================
+        # UNLOAD DATA
+        # ========================================================
+
+        unload_supervisor_qty = (
+            getattr(v, "supervisor_invoice_qty", "") or ""
+        )
+
+        unload_supervisor_boxes = (
+            getattr(v, "supervisor_number_of_boxes", "") or ""
+        )
+
+        damaged_qty = (
+            getattr(v, "supervisor_damaged_qty", "") or ""
+        )
+
+        damaged_boxes = (
+            getattr(v, "supervisor_damaged_boxes", "") or ""
+        )
+
+        # ========================================================
+        # SECURITY CHECKOUT DATA
+        # ========================================================
+
+        security_checkout_qty = (
+            getattr(v, "security_checkout_qty", "") or ""
+        )
+
+        security_checkout_boxes = (
+            getattr(v, "security_checkout_boxes", "") or ""
+        )
+
+        # ========================================================
+        # WRITE ROW
+        # ========================================================
 
         cw.writerow([
 
+            # ----------------------------------------------------
+            # BASIC
+            # ----------------------------------------------------
             v.id,
-            v.location,
-            v.flow_type,
-            v.reg_no,
-            v.type,
-            v.transporter,
-            v.supplier,
+            getattr(v, "location", "") or "",
+            flow_type,
+            getattr(v, "reg_no", "") or "",
+            getattr(v, "type", "") or "",
+            getattr(v, "transporter", "") or "",
+            getattr(v, "supplier", "") or "",
+            getattr(v, "contact_no", "") or "",
+            getattr(v, "driver_name", "") or "",
+            getattr(v, "driver_mobile", "") or "",
 
-            v.lr_number,
-            v.contact_no,
+            # ----------------------------------------------------
+            # LOAD
+            # ----------------------------------------------------
+            load_lr_number,
+            load_invoice_number,
+            load_invoice_qty,
+            load_number_of_boxes,
+            load_actual_qty,
+            load_actual_boxes,
+            supervisor_load_by,
+            load_completed_time,
+            load_remarks,
 
-            v.driver_name,
-            v.driver_mobile,
+            # ----------------------------------------------------
+            # UNLOAD
+            # ----------------------------------------------------
+            unload_supervisor_qty,
+            unload_supervisor_boxes,
+            damaged_qty,
+            damaged_boxes,
 
-            v.invoice_number,
-            v.invoice_qty,
-            v.number_of_boxes,
+            # ----------------------------------------------------
+            # COMMON
+            # ----------------------------------------------------
+            getattr(v, "dock_number", "") or "",
+            getattr(v, "load_unload", "") or "",
+            getattr(v, "status", "") or "",
+            getattr(v, "remarks", "") or "",
+            getattr(v, "check_in", "") or "",
+            getattr(v, "security_checkin_by", "") or "",
 
-            v.load_lr_number,
-            v.load_invoice_number,
-            v.load_invoice_qty,
-            v.load_number_of_boxes,
-            v.actual_qty,
-            v.actual_boxes,
-            v.supervisor_load_by,
-            v.load_completed_time,
-            v.load_remarks,
+            # ----------------------------------------------------
+            # UNLOAD WORKFLOW
+            # ----------------------------------------------------
+            getattr(v, "supervisor_unload_by", "") or "",
+            getattr(v, "unload_time", "") or "",
+            getattr(v, "unload_remarks", "") or "",
 
-            v.supervisor_invoice_qty,
-            v.supervisor_number_of_boxes,
-            v.supervisor_damaged_qty,
-            v.supervisor_damaged_boxes,
+            # ----------------------------------------------------
+            # OUTBOUND WORKFLOW
+            # ----------------------------------------------------
+            getattr(v, "outbound_supervisor_by", "") or "",
+            getattr(v, "outbound_entry_time", "") or "",
+            getattr(v, "outbound_remarks", "") or "",
 
-            v.dock_number,
-            v.load_unload,
-            v.status,
-            v.remarks,
-
-            v.check_in,
-            v.security_checkin_by,
-
-            v.supervisor_unload_by,
-            v.unload_time,
-            v.unload_remarks,
-
-            v.outbound_supervisor_by,
-            v.outbound_entry_time,
-            v.outbound_remarks,
-
-            v.security_checkout_invoice_qty,
-            v.security_checkout_number_of_boxes,
-
-            v.check_out,
-            v.checkout_by,
+            # ----------------------------------------------------
+            # CHECKOUT
+            # ----------------------------------------------------
+            security_checkout_qty,
+            security_checkout_boxes,
+            getattr(v, "check_out", "") or "",
+            getattr(v, "checkout_by", "") or "",
         ])
+
+    # ------------------------------------------------------------
+    # RESPONSE
+    # ------------------------------------------------------------
 
     output = make_response(
         si.getvalue()
     )
 
-    output.headers[
-        "Content-Disposition"
-    ] = (
-        "attachment; "
-        "filename=vehicle_log.csv"
+    output.headers["Content-Disposition"] = (
+        "attachment; filename=vehicle_log.csv"
     )
 
-    output.headers[
-        "Content-Type"
-    ] = "text/csv"
+    output.headers["Content-Type"] = (
+        "text/csv; charset=utf-8"
+    )
 
     return output
+
 
 
 # ============================================================
