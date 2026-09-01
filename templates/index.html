@@ -1,3 +1,4 @@
+```html
 {% extends "base.html" %}
 
 {% block title %}
@@ -366,7 +367,7 @@ Vehicle Tracking Dashboard
                     <div class="col-xl-3 col-lg-4 col-md-6 unload-only-field">
 
                         <label class="form-label fw-semibold">
-                            Total pieces in veh
+                            Total pieces in vehicle
                         </label>
 
                         <input type="number"
@@ -374,10 +375,10 @@ Vehicle Tracking Dashboard
                                name="invoice_qty"
                                id="invoiceQty"
                                class="form-control"
-                               placeholder="Total pieces in veh">
+                               placeholder="Total pieces in vehicle">
 
                         <small class="text-muted">
-                            Total pieces in veh
+                            Total pieces in vehicle
                         </small>
 
                     </div>
@@ -388,14 +389,14 @@ Vehicle Tracking Dashboard
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
                         <label class="form-label fw-semibold">
-                            Total Boxes in Veh.
+                            Total Boxes in vehicle.
                         </label>
 
                         <input type="number"
                                name="number_of_boxes"
                                id="numberOfBoxes"
                                class="form-control"
-                               placeholder="Total Boxes in Veh.">
+                               placeholder="Total Boxes in vehicle.">
 
                     </div>
 
@@ -932,18 +933,10 @@ Vehicle Tracking Dashboard
 
                         <tr>
 
-                            <!-- =================================================
-                                 ID
-                            ================================================== -->
-
                             <td class="text-center fw-semibold">
                                 {{ vehicle.id }}
                             </td>
 
-
-                            <!-- =================================================
-                                 FLOW
-                            ================================================== -->
 
                             <td>
 
@@ -978,14 +971,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 REGISTRATION
-
-                                 Supervisor:
-                                 Security Check-In data hidden.
-                                 Basic vehicle identification remains visible.
-                            ================================================== -->
-
                             <td>
 
                                 <strong class="text-nowrap">
@@ -995,20 +980,10 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 VEHICLE TYPE
-                            ================================================== -->
-
                             <td>
                                 {{ vehicle.type or '-' }}
                             </td>
 
-
-                            <!-- =================================================
-                                 TRANSPORTER
-
-                                 SECURITY -> SUPERVISOR HIDDEN
-                            ================================================== -->
 
                             <td>
 
@@ -1033,12 +1008,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 CUSTOMER
-
-                                 SECURITY -> SUPERVISOR HIDDEN
-                            ================================================== -->
-
                             <td>
 
                                 {% if role == 'supervisor' %}
@@ -1061,15 +1030,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 LR NUMBER
-
-                                 Supervisor:
-                                 Do not show Security LR.
-                                 Show supervisor's unload-related data
-                                 only after supervisor entry.
-                            ================================================== -->
 
                             <td>
 
@@ -1099,12 +1059,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 DRIVER
-
-                                 SECURITY -> SUPERVISOR HIDDEN
-                            ================================================== -->
-
                             <td>
 
                                 {% if role == 'supervisor' %}
@@ -1127,12 +1081,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 DRIVER MOBILE
-
-                                 SECURITY -> SUPERVISOR HIDDEN
-                            ================================================== -->
 
                             <td>
 
@@ -1157,27 +1105,12 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 NO OF INVOICE
-
-                                 SECURITY INPUT HIDDEN FROM SUPERVISOR
-                                 Supervisor unload entry remains visible.
-                            ================================================== -->
-
                             <td>
 
                                 {% if vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'load' %}
 
-                                    {% if role == 'supervisor' %}
-
-                                        {{ vehicle.load_invoice_number or '-' }}
-
-                                    {% else %}
-
-                                        {{ vehicle.load_invoice_number or '-' }}
-
-                                    {% endif %}
+                                    {{ vehicle.load_invoice_number or '-' }}
 
                                 {% elif role == 'supervisor' %}
 
@@ -1199,19 +1132,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 RECEIVED QTY / DISPATCH QTY
-
-                                 IMPORTANT:
-
-                                 Supervisor:
-                                 Security's invoice_qty is NOT shown.
-
-                                 Security:
-                                 After supervisor unload entry,
-                                 supervisor's unload quantity is shown.
-                            ================================================== -->
 
                             <td>
 
@@ -1249,16 +1169,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 TOTAL BOXES / DISPATCH BOXES
-
-                                 Supervisor:
-                                 Security's number_of_boxes hidden.
-
-                                 Security:
-                                 Supervisor unload boxes visible.
-                            ================================================== -->
-
                             <td>
 
                                 {% if vehicle.load_unload
@@ -1295,10 +1205,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 LOAD / UNLOAD
-                            ================================================== -->
-
                             <td>
 
                                 {% if vehicle.load_unload
@@ -1326,10 +1232,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 STATUS
-                            ================================================== -->
-
                             <td>
 
                                 {% if vehicle.status == 'IN' %}
@@ -1355,12 +1257,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 CHECK IN
-
-                                 Supervisor does not see Security check-in time.
-                            ================================================== -->
-
                             <td class="text-nowrap small">
 
                                 {% if role == 'supervisor' %}
@@ -1375,14 +1271,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 SECURITY
-
-                                 Supervisor does not see Security user.
-
-                                 Security sees Security entry.
-                            ================================================== -->
 
                             <td>
 
@@ -1434,14 +1322,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 SUPERVISOR
-
-                                 Supervisor sees his own unload entry.
-
-                                 Security sees Supervisor Unload By.
-                            ================================================== -->
 
                             <td>
 
@@ -1512,13 +1392,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 COMPLETION TIME
-
-                                 Supervisor sees his unload completion time.
-                                 Security sees supervisor unload time.
-                            ================================================== -->
-
                             <td class="text-nowrap small">
 
                                 {% if vehicle.load_unload
@@ -1556,13 +1429,6 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 CHECKOUT
-
-                                 Supervisor does not see Security checkout
-                                 information.
-                            ================================================== -->
-
                             <td class="text-nowrap small">
 
                                 {% if role == 'supervisor' %}
@@ -1577,12 +1443,6 @@ Vehicle Tracking Dashboard
 
                             </td>
 
-
-                            <!-- =================================================
-                                 CHECKOUT BY
-
-                                 Supervisor does not see Security checkout user.
-                            ================================================== -->
 
                             <td>
 
@@ -1599,15 +1459,8 @@ Vehicle Tracking Dashboard
                             </td>
 
 
-                            <!-- =================================================
-                                 ACTION
-                                 ORIGINAL LOGIC
-                            ================================================== -->
-
                             <td class="text-center action-cell">
 
-
-                                <!-- ALREADY OUT -->
 
                                 {% if vehicle.status == 'OUT' %}
 
@@ -1619,8 +1472,6 @@ Vehicle Tracking Dashboard
 
                                     </span>
 
-
-                                <!-- LOAD FLOW -->
 
                                 {% elif vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'load' %}
@@ -1685,8 +1536,6 @@ Vehicle Tracking Dashboard
 
                                     {% endif %}
 
-
-                                <!-- UNLOAD FLOW -->
 
                                 {% elif vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'unload' %}
@@ -1766,8 +1615,6 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- DIRECT OUTBOUND -->
-
                                 {% elif vehicle.flow_type == 'OUTBOUND' %}
 
                                     {% if role in ['security', 'lifelong', 'admin'] %}
@@ -1796,8 +1643,6 @@ Vehicle Tracking Dashboard
 
                                     {% endif %}
 
-
-                                <!-- UNKNOWN -->
 
                                 {% else %}
 
@@ -1865,8 +1710,6 @@ Vehicle Tracking Dashboard
                 <ul class="pagination justify-content-center mb-0">
 
 
-                    <!-- PREVIOUS -->
-
                     {% if current_page > 1 %}
 
                         <li class="page-item">
@@ -1909,8 +1752,6 @@ Vehicle Tracking Dashboard
                     {% endif %}
 
 
-                    <!-- PAGE NUMBERS -->
-
                     {% set start_page = current_page - 2 %}
                     {% set end_page = current_page + 2 %}
 
@@ -1951,8 +1792,6 @@ Vehicle Tracking Dashboard
 
                     {% endfor %}
 
-
-                    <!-- NEXT -->
 
                     {% if current_page < total_pages %}
 
@@ -2165,6 +2004,11 @@ document.addEventListener("DOMContentLoaded", function () {
             ".load-only-field"
         );
 
+    const lrNumber =
+        document.getElementById(
+            "lrNumber"
+        );
+
 
     function updateLoadUnloadFields() {
 
@@ -2211,6 +2055,21 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
+            /*
+             * IMPORTANT FIX:
+             * LR Number hidden hai, isliye Load ke time
+             * required nahi hona chahiye.
+             */
+
+            if (lrNumber) {
+
+                lrNumber.required = false;
+
+                lrNumber.removeAttribute("required");
+
+            }
+
+
             loadOnlyFields.forEach(
                 function (field) {
 
@@ -2238,6 +2097,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 }
             );
+
+
+            /*
+             * IMPORTANT FIX:
+             * Unload ke time LR Number mandatory rahega.
+             */
+
+            if (lrNumber) {
+
+                lrNumber.required = true;
+
+                lrNumber.setAttribute(
+                    "required",
+                    "required"
+                );
+
+            }
 
 
             loadOnlyFields.forEach(
@@ -2280,6 +2156,11 @@ document.addEventListener("DOMContentLoaded", function () {
             updateLoadUnloadFields
         );
 
+
+        /*
+         * IMPORTANT:
+         * Page load par bhi required state correct set hogi.
+         */
 
         updateLoadUnloadFields();
 
@@ -2325,3 +2206,4 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 {% endblock %}
+```
