@@ -157,9 +157,7 @@ Vehicle Tracking Dashboard
                 <div class="row g-3">
 
 
-                    <!-- =================================================
-                         VEHICLE REGISTRATION
-                    ================================================== -->
+                    <!-- VEHICLE REGISTRATION -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -177,9 +175,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         VEHICLE TYPE
-                    ================================================== -->
+                    <!-- VEHICLE TYPE -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -233,9 +229,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         LOAD / UNLOAD
-                    ================================================== -->
+                    <!-- LOAD / UNLOAD -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -262,9 +256,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         TRANSPORTER
-                    ================================================== -->
+                    <!-- TRANSPORTER -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -280,10 +272,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         CUSTOMER
-                         LOAD ONLY
-                    ================================================== -->
+                    <!-- CUSTOMER - LOAD ONLY -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 load-only-field">
 
@@ -300,66 +289,62 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         LR NUMBER
-                         UNLOAD ONLY
-                    ================================================== -->
+                    <!-- LR NUMBER - UNLOAD ONLY -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
                         <label class="form-label fw-semibold">
                             LR Number
+                            <span class="text-danger">*</span>
                         </label>
 
                         <input type="text"
                                name="lr_number"
                                id="lrNumber"
                                class="form-control"
-                               placeholder="LR Number">
+                               placeholder="LR Number"
+                               required>
 
                     </div>
 
 
-                    <!-- =================================================
-                         DRIVER NAME
-                    ================================================== -->
+                    <!-- DRIVER NAME -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
                         <label class="form-label fw-semibold">
                             Driver Name
+                            <span class="text-danger">*</span>
                         </label>
 
                         <input type="text"
                                name="driver_name"
                                class="form-control"
-                               placeholder="Driver Name">
+                               placeholder="Driver Name"
+                               required>
 
                     </div>
 
 
-                    <!-- =================================================
-                         DRIVER MOBILE
-                    ================================================== -->
+                    <!-- DRIVER MOBILE -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
                         <label class="form-label fw-semibold">
                             Driver Mobile
+                            <span class="text-danger">*</span>
                         </label>
 
                         <input type="text"
                                name="driver_mobile"
                                class="form-control"
-                               placeholder="Driver Mobile">
+                               placeholder="Driver Mobile"
+                               required>
 
                     </div>
 
 
-                    <!-- =================================================
-                         NO OF INVOICE
-                         UNLOAD ONLY
-                    ================================================== -->
+                    <!-- NO OF INVOICE - UNLOAD ONLY -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -376,10 +361,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         ACTUAL INVOICE QUANTITY
-                         UNLOAD ONLY
-                    ================================================== -->
+                    <!-- ACTUAL INVOICE QUANTITY - UNLOAD ONLY -->
 
                     <div class="col-xl-3 col-lg-4 col-md-6 unload-only-field">
 
@@ -401,10 +383,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         TOTAL BOXES IN VEHICLE
-                         UNLOAD ONLY
-                    ================================================== -->
+                    <!-- TOTAL BOXES - UNLOAD ONLY -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 unload-only-field">
 
@@ -421,9 +400,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         REMARKS
-                    ================================================== -->
+                    <!-- REMARKS -->
 
                     <div class="col-xl-4 col-lg-6 col-md-8">
 
@@ -439,9 +416,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         CHECK-IN TIME
-                    ================================================== -->
+                    <!-- CHECK-IN TIME -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4">
 
@@ -457,9 +432,7 @@ Vehicle Tracking Dashboard
                     </div>
 
 
-                    <!-- =================================================
-                         SUBMIT
-                    ================================================== -->
+                    <!-- SUBMIT -->
 
                     <div class="col-xl-2 col-lg-3 col-md-4 d-flex align-items-end">
 
@@ -489,9 +462,6 @@ Vehicle Tracking Dashboard
     ========================================================== -->
 
     <div class="row g-3 mb-4">
-
-
-        <!-- VEHICLES IN -->
 
         <div class="col-xl-3 col-md-6">
 
@@ -528,8 +498,6 @@ Vehicle Tracking Dashboard
         </div>
 
 
-        <!-- VEHICLES OUT -->
-
         <div class="col-xl-3 col-md-6">
 
             <div class="card border-0 shadow-sm h-100">
@@ -565,8 +533,6 @@ Vehicle Tracking Dashboard
         </div>
 
 
-        <!-- TOTAL -->
-
         <div class="col-xl-3 col-md-6">
 
             <div class="card border-0 shadow-sm h-100">
@@ -601,8 +567,6 @@ Vehicle Tracking Dashboard
 
         </div>
 
-
-        <!-- OVER 48 HOURS -->
 
         <div class="col-xl-3 col-md-6">
 
@@ -968,7 +932,6 @@ Vehicle Tracking Dashboard
 
                         <tr>
 
-
                             <!-- =================================================
                                  ID
                             ================================================== -->
@@ -980,8 +943,6 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  FLOW
-                                 UNLOAD = INBOUND
-                                 LOAD   = OUTBOUND
                             ================================================== -->
 
                             <td>
@@ -1000,6 +961,12 @@ Vehicle Tracking Dashboard
                                         OUTBOUND
                                     </span>
 
+                                {% elif vehicle.flow_type == 'OUTBOUND' %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        OUTBOUND
+                                    </span>
+
                                 {% else %}
 
                                     <span class="badge bg-secondary">
@@ -1013,6 +980,10 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  REGISTRATION
+
+                                 Supervisor:
+                                 Security Check-In data hidden.
+                                 Basic vehicle identification remains visible.
                             ================================================== -->
 
                             <td>
@@ -1035,26 +1006,69 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  TRANSPORTER
+
+                                 SECURITY -> SUPERVISOR HIDDEN
                             ================================================== -->
 
                             <td>
-                                {{ vehicle.transporter or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.transporter or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    {{ vehicle.transporter or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  CUSTOMER
-                                 Backend field remains supplier
-                                 Only UI heading changes.
+
+                                 SECURITY -> SUPERVISOR HIDDEN
                             ================================================== -->
 
                             <td>
-                                {{ vehicle.supplier or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.supplier or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    {{ vehicle.supplier or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  LR NUMBER
+
+                                 Supervisor:
+                                 Do not show Security LR.
+                                 Show supervisor's unload-related data
+                                 only after supervisor entry.
                             ================================================== -->
 
                             <td>
@@ -1063,6 +1077,18 @@ Vehicle Tracking Dashboard
                                       and vehicle.load_unload|trim|lower == 'load' %}
 
                                     {{ vehicle.load_lr_number or '-' }}
+
+                                {% elif role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.lr_number or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
 
                                 {% else %}
 
@@ -1075,24 +1101,67 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  DRIVER
+
+                                 SECURITY -> SUPERVISOR HIDDEN
                             ================================================== -->
 
                             <td>
-                                {{ vehicle.driver_name or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.driver_name or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    {{ vehicle.driver_name or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  DRIVER MOBILE
+
+                                 SECURITY -> SUPERVISOR HIDDEN
                             ================================================== -->
 
                             <td>
-                                {{ vehicle.driver_mobile or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.driver_mobile or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    {{ vehicle.driver_mobile or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  NO OF INVOICE
+
+                                 SECURITY INPUT HIDDEN FROM SUPERVISOR
+                                 Supervisor unload entry remains visible.
                             ================================================== -->
 
                             <td>
@@ -1100,7 +1169,27 @@ Vehicle Tracking Dashboard
                                 {% if vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'load' %}
 
-                                    {{ vehicle.load_invoice_number or '-' }}
+                                    {% if role == 'supervisor' %}
+
+                                        {{ vehicle.load_invoice_number or '-' }}
+
+                                    {% else %}
+
+                                        {{ vehicle.load_invoice_number or '-' }}
+
+                                    {% endif %}
+
+                                {% elif role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.invoice_number or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
 
                                 {% else %}
 
@@ -1113,6 +1202,15 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  RECEIVED QTY / DISPATCH QTY
+
+                                 IMPORTANT:
+
+                                 Supervisor:
+                                 Security's invoice_qty is NOT shown.
+
+                                 Security:
+                                 After supervisor unload entry,
+                                 supervisor's unload quantity is shown.
                             ================================================== -->
 
                             <td>
@@ -1122,9 +1220,29 @@ Vehicle Tracking Dashboard
 
                                     {{ vehicle.load_invoice_qty or '-' }}
 
+                                {% elif role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.unload_supervisor_qty or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
                                 {% else %}
 
-                                    {{ vehicle.invoice_qty or '-' }}
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.unload_supervisor_qty or '-' }}
+
+                                    {% else %}
+
+                                        {{ vehicle.invoice_qty or '-' }}
+
+                                    {% endif %}
 
                                 {% endif %}
 
@@ -1133,6 +1251,12 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  TOTAL BOXES / DISPATCH BOXES
+
+                                 Supervisor:
+                                 Security's number_of_boxes hidden.
+
+                                 Security:
+                                 Supervisor unload boxes visible.
                             ================================================== -->
 
                             <td>
@@ -1142,9 +1266,29 @@ Vehicle Tracking Dashboard
 
                                     {{ vehicle.load_number_of_boxes or '-' }}
 
+                                {% elif role == 'supervisor' %}
+
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.unload_supervisor_boxes or '-' }}
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
                                 {% else %}
 
-                                    {{ vehicle.number_of_boxes or '-' }}
+                                    {% if vehicle.supervisor_unload_by %}
+
+                                        {{ vehicle.unload_supervisor_boxes or '-' }}
+
+                                    {% else %}
+
+                                        {{ vehicle.number_of_boxes or '-' }}
+
+                                    {% endif %}
 
                                 {% endif %}
 
@@ -1213,54 +1357,78 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  CHECK IN
+
+                                 Supervisor does not see Security check-in time.
                             ================================================== -->
 
                             <td class="text-nowrap small">
-                                {{ vehicle.check_in or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    -
+
+                                {% else %}
+
+                                    {{ vehicle.check_in or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  SECURITY
+
+                                 Supervisor does not see Security user.
+
+                                 Security sees Security entry.
                             ================================================== -->
 
                             <td>
 
-                                {% if vehicle.security_checkin_by %}
+                                {% if role == 'supervisor' %}
 
-                                    <div class="small">
-
-                                        <strong>
-                                            {{ vehicle.security_checkin_by }}
-                                        </strong>
-
-                                        <br>
-
-                                        <span class="text-muted">
-                                            Gate Check-In
-                                        </span>
-
-                                    </div>
-
-                                {% elif vehicle.outbound_supervisor_by %}
-
-                                    <div class="small">
-
-                                        <strong>
-                                            {{ vehicle.outbound_supervisor_by }}
-                                        </strong>
-
-                                        <br>
-
-                                        <span class="text-muted">
-                                            Direct Outbound
-                                        </span>
-
-                                    </div>
+                                    -
 
                                 {% else %}
 
-                                    -
+                                    {% if vehicle.security_checkin_by %}
+
+                                        <div class="small">
+
+                                            <strong>
+                                                {{ vehicle.security_checkin_by }}
+                                            </strong>
+
+                                            <br>
+
+                                            <span class="text-muted">
+                                                Gate Check-In
+                                            </span>
+
+                                        </div>
+
+                                    {% elif vehicle.outbound_supervisor_by %}
+
+                                        <div class="small">
+
+                                            <strong>
+                                                {{ vehicle.outbound_supervisor_by }}
+                                            </strong>
+
+                                            <br>
+
+                                            <span class="text-muted">
+                                                Direct Outbound
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
 
                                 {% endif %}
 
@@ -1269,6 +1437,10 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  SUPERVISOR
+
+                                 Supervisor sees his own unload entry.
+
+                                 Security sees Supervisor Unload By.
                             ================================================== -->
 
                             <td>
@@ -1342,6 +1514,9 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  COMPLETION TIME
+
+                                 Supervisor sees his unload completion time.
+                                 Security sees supervisor unload time.
                             ================================================== -->
 
                             <td class="text-nowrap small">
@@ -1351,9 +1526,30 @@ Vehicle Tracking Dashboard
 
                                     {{ vehicle.load_completed_time or '-' }}
 
+                                {% elif vehicle.load_unload
+                                        and vehicle.load_unload|trim|lower == 'unload' %}
+
+                                    {% if role == 'supervisor' %}
+
+                                        {% if vehicle.supervisor_unload_by %}
+
+                                            {{ vehicle.unload_time or '-' }}
+
+                                        {% else %}
+
+                                            -
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        {{ vehicle.unload_time or '-' }}
+
+                                    {% endif %}
+
                                 {% else %}
 
-                                    {{ vehicle.unload_time or '-' }}
+                                    -
 
                                 {% endif %}
 
@@ -1362,32 +1558,56 @@ Vehicle Tracking Dashboard
 
                             <!-- =================================================
                                  CHECKOUT
+
+                                 Supervisor does not see Security checkout
+                                 information.
                             ================================================== -->
 
                             <td class="text-nowrap small">
-                                {{ vehicle.check_out or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    -
+
+                                {% else %}
+
+                                    {{ vehicle.check_out or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  CHECKOUT BY
+
+                                 Supervisor does not see Security checkout user.
                             ================================================== -->
 
                             <td>
-                                {{ vehicle.checkout_by or '-' }}
+
+                                {% if role == 'supervisor' %}
+
+                                    -
+
+                                {% else %}
+
+                                    {{ vehicle.checkout_by or '-' }}
+
+                                {% endif %}
+
                             </td>
 
 
                             <!-- =================================================
                                  ACTION
+                                 ORIGINAL LOGIC
                             ================================================== -->
 
                             <td class="text-center action-cell">
 
 
-                                <!-- =================================================
-                                     ALREADY OUT
-                                ================================================== -->
+                                <!-- ALREADY OUT -->
 
                                 {% if vehicle.status == 'OUT' %}
 
@@ -1400,15 +1620,7 @@ Vehicle Tracking Dashboard
                                     </span>
 
 
-                                <!-- =================================================
-                                     LOAD FLOW
-
-                                     Security Check-In
-                                     ↓
-                                     Supervisor Load
-                                     ↓
-                                     Security Checkout
-                                ================================================== -->
+                                <!-- LOAD FLOW -->
 
                                 {% elif vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'load' %}
@@ -1474,15 +1686,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =================================================
-                                     UNLOAD FLOW
-
-                                     Security Check-In
-                                     ↓
-                                     Supervisor Unload
-                                     ↓
-                                     Security Checkout
-                                ================================================== -->
+                                <!-- UNLOAD FLOW -->
 
                                 {% elif vehicle.load_unload
                                       and vehicle.load_unload|trim|lower == 'unload' %}
@@ -1518,11 +1722,6 @@ Vehicle Tracking Dashboard
 
 
                                     {% else %}
-
-                                        <!-- =========================================
-                                             UNLOAD COMPLETED
-                                             SECURITY CHECKOUT
-                                        ========================================== -->
 
                                         {% if role in ['security', 'lifelong', 'admin'] %}
 
@@ -1567,9 +1766,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =================================================
-                                     DIRECT OUTBOUND
-                                ================================================== -->
+                                <!-- DIRECT OUTBOUND -->
 
                                 {% elif vehicle.flow_type == 'OUTBOUND' %}
 
@@ -1600,9 +1797,7 @@ Vehicle Tracking Dashboard
                                     {% endif %}
 
 
-                                <!-- =================================================
-                                     UNKNOWN
-                                ================================================== -->
+                                <!-- UNKNOWN -->
 
                                 {% else %}
 
@@ -1848,11 +2043,6 @@ Vehicle Tracking Dashboard
             rgba(13, 110, 253, 0.15);
     }
 
-
-    /* =========================================================
-       TABLE
-    ========================================================== */
-
     .vehicle-table {
         max-height: 72vh;
         overflow: auto;
@@ -1887,19 +2077,9 @@ Vehicle Tracking Dashboard
         min-width: 150px;
     }
 
-
-    /* =========================================================
-       SUMMARY CARDS
-    ========================================================== */
-
     .fs-2 {
         line-height: 1.2;
     }
-
-
-    /* =========================================================
-       LOAD / UNLOAD DYNAMIC FIELDS
-    ========================================================== */
 
     .unload-only-field,
     .load-only-field {
@@ -1910,19 +2090,9 @@ Vehicle Tracking Dashboard
 
     }
 
-
-    /* =========================================================
-       FORM FIELD HELPER
-    ========================================================== */
-
     .form-label {
         margin-bottom: 6px;
     }
-
-
-    /* =========================================================
-       MOBILE
-    ========================================================== */
 
     @media (max-width: 768px) {
 
@@ -1978,25 +2148,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* =========================================================
        LOAD / UNLOAD FIELD VISIBILITY
-
-       UNLOAD:
-       --------------------------------
-       Customer          -> HIDE
-       LR Number         -> SHOW
-       No of Invoice     -> SHOW
-       Actual Invoice Quantity -> SHOW
-       Total Boxes       -> SHOW
-
-       LOAD:
-       --------------------------------
-       Customer          -> SHOW
-       LR Number         -> HIDE
-       No of Invoice     -> HIDE
-       Actual Invoice Quantity -> HIDE
-       Total Boxes       -> HIDE
-
-       IMPORTANT:
-       Backend field names are NOT changed.
     ========================================================== */
 
     const loadUnloadSelect =
@@ -2035,8 +2186,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (selectedValue === "load") {
 
 
-            /* Hide unload fields */
-
             unloadOnlyFields.forEach(
                 function (field) {
 
@@ -2062,8 +2211,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
-            /* Show customer */
-
             loadOnlyFields.forEach(
                 function (field) {
 
@@ -2083,8 +2230,6 @@ document.addEventListener("DOMContentLoaded", function () {
         else {
 
 
-            /* Show unload fields */
-
             unloadOnlyFields.forEach(
                 function (field) {
 
@@ -2094,8 +2239,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             );
 
-
-            /* Hide customer */
 
             loadOnlyFields.forEach(
                 function (field) {
@@ -2137,8 +2280,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateLoadUnloadFields
         );
 
-
-        /* Initial state */
 
         updateLoadUnloadFields();
 
