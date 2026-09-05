@@ -1852,6 +1852,36 @@ def checkin():
             )
 
         # ====================================================
+        # VEHICLE UNIQUENESS VALIDATION
+        #
+        # SAME VEHICLE CANNOT BE CHECKED-IN AGAIN WHILE
+        # ITS PREVIOUS ENTRY IS STILL INSIDE THE SAME LOCATION.
+        #
+        # Once previous vehicle is OUT, new check-in is allowed.
+        # ====================================================
+
+        current_loc = current_location()
+
+        existing_vehicle = Vehicle.query.filter(
+            Vehicle.reg_no.ilike(reg_no),
+            Vehicle.status == "IN",
+            Vehicle.location == current_loc
+        ).first()
+
+        if existing_vehicle:
+
+            flash(
+                f"Vehicle {existing_vehicle.reg_no.upper()} is already "
+                f"inside this location. It cannot be checked in again "
+                f"until the previous entry is checked out.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+        # ====================================================
         # LOAD LOGIC
         #
         # VERY IMPORTANT:
@@ -1972,7 +2002,7 @@ def checkin():
 
             checkout_by=None,
 
-            location=current_location()
+            location=current_loc
         )
 
         db.session.add(
